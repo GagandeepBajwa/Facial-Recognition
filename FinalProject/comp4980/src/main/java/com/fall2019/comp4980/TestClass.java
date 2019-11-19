@@ -75,7 +75,7 @@ public class TestClass  {
 
         AutoEncoder ae = new AutoEncoder(.001);
         Dataset ts = new Dataset();
-        System.out.println(Dataset.root);
+
         //ae.train(10000, )
 
 
