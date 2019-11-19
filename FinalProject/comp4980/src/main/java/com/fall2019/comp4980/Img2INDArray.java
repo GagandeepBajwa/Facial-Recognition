@@ -16,6 +16,40 @@ import org.nd4j.linalg.factory.Nd4j;
  *
  * @author John
  */
+
+
+/**
+ * Before loading an image. Call one of these methods to set the color type you want:
+ *
+ * Img2INDArray.rgb() - default. Assumes a color image and returns an INDArray with 3 channels (RGB).
+ * Img2INDArray.grayscale() - Converts the image to shades-of-gray. Returns an INDArray with 1 channel.
+ * Img2INDArray.bw() - Converts an image to black-and-white. Returns an INDArray with 1 channel.
+ *
+ */
+
+/**
+ * Syntax:
+ *
+ *  load_image(String filename, int width, int height, int offsetX, int offsetY, boolean preview)
+ *
+ *      filename:   filename for image to load
+ *
+ *      width:      the width you want the image to be. It will automatically be scaled to this width
+ *
+ *      height:     the height you want the image to be. It will automatically be scaled to this height
+ *
+ *      offsetX:    shift the image X pixels to the left or right
+ *
+ *      offsetY:    shift the image Y pixels up or down
+ *
+ *      noise:      a value between 0-1. In some cases it may be useful to add noise to the image.
+ *                  A value of 0.0 will add no noise while a value of 1.0 will be 100% noisy image.
+ *
+ *      preview:    if true, a pop-up of the scaled image will be displayed. Used for debugging
+ *
+ *  returns:    returns a rank 4 INDArray with dimensions [[[[1,3,height,width]]]] that is already normalized.
+ *              The 3-dimension depth represents the RED, GREEN, BLUE channels of the image.
+ */
 public class Img2INDArray {
     
     private static int image_type = BufferedImage.TYPE_INT_RGB;

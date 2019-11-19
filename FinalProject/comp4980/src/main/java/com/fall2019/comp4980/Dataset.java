@@ -2,7 +2,12 @@ package com.fall2019.comp4980;
 
 import org.nd4j.linalg.api.ndarray.INDArray;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
+import java.lang.reflect.Array;
+import java.nio.Buffer;
+import java.util.ArrayList;
 
 public class Dataset {
      private static File root;
@@ -29,6 +34,31 @@ public class Dataset {
           for(File file : rootDataset.listFiles()){
           }
           return null;
+     }
+
+     public static ArrayList<String> getCSV(String fileToRead){
+          ArrayList<String> container = new ArrayList<String>();
+          try {
+               File root = getDatasetRoot();
+               String mismatch = root.toString() + fileToRead;
+               String line;
+               BufferedReader mismatchFile = new BufferedReader(new FileReader(mismatch));
+               boolean firstline = true;
+
+               while((line = mismatchFile.readLine()) != null){
+                    if(firstline) { firstline = false; continue; }
+                    container.add(line);
+               }
+               System.out.println(fileToRead);
+               for(String l : container){
+                    System.out.println(l);
+               }
+               return null;
+          }catch (Exception e){
+               e.printStackTrace();
+               System.exit(0);
+          }
+          return container;
      }
 
      private static File getDatasetRoot() throws Exception{
