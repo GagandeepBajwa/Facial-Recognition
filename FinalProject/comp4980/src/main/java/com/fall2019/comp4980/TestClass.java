@@ -62,36 +62,24 @@ public class TestClass  {
         int offsetX     = 0;
         int offsetY     = 0;
 
-        final String BASE_PATH = getDatasetRoot();
-        final String dataset = "lfw-deepfunneled/";
-        System.out.println(BASE_PATH);
         INDArray v_in;
 
-        String class_ = "Frank_Marshall/";
-        String image = "Frank_Marshall_0001.jpg";
-        String im = BASE_PATH + dataset + class_ + image;
         /** Load image as a 3-channel RGB INDArray of shape { height x width x 3 } */
-        Img2INDArray.rgb();
-        v_in = Img2INDArray.load_image(im,width,height,offsetX,offsetY, noise, false);
-        System.out.println( "RGB:\n" + v_in );
-        System.out.println( v_in.shapeInfoToString() + "\n");
+//        Img2INDArray.rgb();
+//        v_in = Img2INDArray.load_image(im,width,height,offsetX,offsetY, noise, false);
+//        System.out.println( "RGB:\n" + v_in );
+//        System.out.println( v_in.shapeInfoToString() + "\n");
 
 
 
 
         AutoEncoder ae = new AutoEncoder(.001);
+        Dataset ts = new Dataset();
+        System.out.println(Dataset.root);
         //ae.train(10000, )
 
 
-
-
-
-
     }
 
-    private static String getDatasetRoot() throws Exception{
-        String currentDir = new java.io.File( "." ).getCanonicalPath();
 
-        return currentDir + "/lfw-dataset/";
-    }
 }

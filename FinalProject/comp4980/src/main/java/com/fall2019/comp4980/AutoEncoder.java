@@ -13,7 +13,7 @@ import org.nd4j.linalg.learning.config.Adam;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 
 public class AutoEncoder {
-     
+
      static ComputationGraph model;
      static final int VECTOR_INPUT = 11;
      static final int INPUT_NODES = 11;
@@ -29,11 +29,11 @@ public class AutoEncoder {
      static final int OUTPUT_NODES = 11;
 
      AutoEncoder(double learningRate){
-          System.out.println("AutoEcoder Object created...");
           model = nn_init(learningRate);
      }
      private static ComputationGraph nn_init(double learningRate){
-          System.out.println("Initializing AutoEncoder");
+
+          System.out.println("Initializing AutoEncoder...");
           // Some hyperparameters (variable) declarations here.
 
 
@@ -119,6 +119,7 @@ public class AutoEncoder {
 
           return net;
      }
+
      public static void train(int epoch, INDArray[] training_set)
      {
           INDArray[] INPs = new INDArray[1];
