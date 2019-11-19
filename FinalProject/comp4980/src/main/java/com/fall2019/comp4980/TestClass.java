@@ -55,28 +55,37 @@ public class TestClass  {
          * 
          *  returns:    returns a rank 4 INDArray with dimensions [[[[1,3,height,width]]]] that is already normalized. 
          *              The 3-dimension depth represents the RED, GREEN, BLUE channels of the image. 
-         */    
-
-        final String BASE_PATH = getDatasetRoot();
-
-
+         */
         double noise    = 0.4;  // Change to 0.50 for 50% noise in picture
         int width       = 250;
         int height      = 250;
         int offsetX     = 0;
         int offsetY     = 0;
+
+        final String BASE_PATH = getDatasetRoot();
+        final String dataset = "lfw-deepfunneled/";
         System.out.println(BASE_PATH);
-            INDArray v_in;
+        INDArray v_in;
+
+        String class_ = "Frank_Marshall/";
+        String image = "Frank_Marshall_0001.jpg";
+        String im = BASE_PATH + dataset + class_ + image;
+        /** Load image as a 3-channel RGB INDArray of shape { height x width x 3 } */
+        Img2INDArray.rgb();
+        v_in = Img2INDArray.load_image(im,width,height,offsetX,offsetY, noise, false);
+        System.out.println( "RGB:\n" + v_in );
+        System.out.println( v_in.shapeInfoToString() + "\n");
 
 
-            String class_ = "Frank_Marshall/";
-            String image = "Frank_Marshall_0001.jpg";
-            String im = BASE_PATH + class_ + image;
-            /** Load image as a 3-channel RGB INDArray of shape { height x width x 3 } */
-            Img2INDArray.rgb();
-            v_in = Img2INDArray.load_image(im,width,height,offsetX,offsetY, noise, true);
-            System.out.println( "RGB:\n" + v_in );
-            System.out.println( v_in.shapeInfoToString() + "\n");
+
+
+        AutoEncoder ae = new AutoEncoder(.001);
+        //ae.train(10000, )
+
+
+
+
+
 
     }
 
