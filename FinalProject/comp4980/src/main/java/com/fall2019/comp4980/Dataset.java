@@ -31,18 +31,20 @@ public class Dataset {
      Dataset() throws Exception{
           System.out.println("Initializing Dataset...");
           System.out.println();
+          setData(false);
           System.out.println("Testing set size: " + testingSet.size());
           System.out.println("Training set size: " + trainingSet.size());
-          setData(false);
+
           System.out.println("Dataset Initialized");
      }
 
      Dataset(boolean ae) throws Exception{
           System.out.println("Initializing Dataset...");
           System.out.println();
+          setData(ae);
           System.out.println("Testing set size: " + testingSet.size());
           System.out.println("Training set size: " + trainingSet.size());
-          setData(ae);
+
           System.out.println("Dataset Initialized");
      }
      public static void setData(boolean ae) throws Exception{
@@ -76,6 +78,10 @@ public class Dataset {
                     testingSet.add(v_in);
                }
           }
+     }
+
+     public static void setNoise(double n){
+          noise = n;
      }
      private static String getDatasetRoot() throws Exception{
           String currentDir = new java.io.File( "." ).getCanonicalPath();

@@ -28,9 +28,6 @@ public class TestClass  {
     public static void ae() throws Exception{
         AutoEncoder ae = new AutoEncoder(.001);
         Dataset ds = new Dataset(true);
-        for(String name : ds.names){
-            System.out.println(name);
-        }
 
         ae.train(100, ds.trainingSet);
         //ae.test(ts.testingSet);
