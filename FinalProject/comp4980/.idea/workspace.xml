@@ -3,11 +3,11 @@
   <component name="ChangeListManager">
     <list default="true" id="c436f7b3-b865-4224-bbe6-b00956a6cc09" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/fall2019/comp4980/AutoEncoder.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/fall2019/comp4980/AutoEncoder.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/fall2019/comp4980/Dataset.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/fall2019/comp4980/Dataset.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/fall2019/comp4980/Img2INDArray.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/fall2019/comp4980/Img2INDArray.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/fall2019/comp4980/TestClass.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/fall2019/comp4980/TestClass.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/fall2019/comp4980/AutoEncoder.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/fall2019/comp4980/AutoEncoder.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/com/fall2019/comp4980/Dataset.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/fall2019/comp4980/Dataset.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/fall2019/comp4980/Img2INDArray.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/fall2019/comp4980/Img2INDArray.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/com/fall2019/comp4980/TestClass.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/fall2019/comp4980/TestClass.class" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -29,6 +29,7 @@
   <component name="ProjectId" id="1To3ZpEkMVfi5y5EkCBX57mie9s" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="PropertiesComponent">
+    <property name="ASKED_ADD_EXTERNAL_FILES" value="true" />
     <property name="project.structure.last.edited" value="Project" />
     <property name="project.structure.proportion" value="0.0" />
     <property name="project.structure.side.proportion" value="0.0" />
@@ -84,7 +85,9 @@
       <map>
         <entry key="MAIN">
           <value>
-            <State />
+            <State>
+              <option name="COLUMN_ORDER" />
+            </State>
           </value>
         </entry>
       </map>

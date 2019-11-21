@@ -12,21 +12,23 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.learning.config.Adam;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 
+import java.util.ArrayList;
+
 public class AutoEncoder {
 
      static ComputationGraph model;
-     static final int VECTOR_INPUT = 11;
-     static final int INPUT_NODES = 11;
-     static final int ENCODER_1_NODES = 10;
-     static final int ENCODER_2_NODES = 9;
-     static final int ENCODER_3_NODES = 8;
-     static final int ENCODER_4_NODES = 7;
-     static final int EMBEDDED_NODES = 6;
-     static final int DECODER_4_NODES = 7;
-     static final int DECODER_3_NODES = 8;
-     static final int DECODER_2_NODES = 9;
-     static final int DECODER_1_NODES = 10;
-     static final int OUTPUT_NODES = 11;
+     static final int VECTOR_INPUT = 7500;
+     static final int INPUT_NODES = 7500;
+     static final int ENCODER_1_NODES = 1000;
+     static final int ENCODER_2_NODES = 100;
+     static final int ENCODER_3_NODES = 10;
+     static final int ENCODER_4_NODES = 5;
+     static final int EMBEDDED_NODES = 2;
+     static final int DECODER_4_NODES = 5;
+     static final int DECODER_3_NODES = 10;
+     static final int DECODER_2_NODES = 100;
+     static final int DECODER_1_NODES = 1000;
+     static final int OUTPUT_NODES = 7500;
 
      AutoEncoder(double learningRate){
           model = nn_init(learningRate);
@@ -120,18 +122,19 @@ public class AutoEncoder {
           return net;
      }
 
-     public static void train(int epoch, INDArray[] training_set)
+     public static void train(int epoch, ArrayList<INDArray> training_set)
      {
           INDArray[] INPs = new INDArray[1];
-
+          System.out.println("Beginning training...");
           for( ; epoch>0; epoch--)
           {
                for( INDArray t: training_set)
                {
                     INPs[0] = t;
                     model.fit(INPs, INPs);
+                    System.out.println( model.score() + "\t" + epoch + " to go!");
                }
-               System.out.println( model.score() + "\t" + epoch + " to go!");
+
           }
      }
 }

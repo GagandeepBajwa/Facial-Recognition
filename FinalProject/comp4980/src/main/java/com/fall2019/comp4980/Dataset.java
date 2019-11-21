@@ -1,6 +1,7 @@
 package com.fall2019.comp4980;
 
 import org.nd4j.linalg.api.ndarray.INDArray;
+import org.nd4j.linalg.factory.Nd4j;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -10,60 +11,73 @@ import java.nio.Buffer;
 import java.util.ArrayList;
 
 public class Dataset {
+     public static ArrayList<INDArray> trainingSet = new ArrayList<INDArray>();
+     public static ArrayList<INDArray> testingSet = new ArrayList<INDArray>();;
      private static File root;
      private static File rootDataset;
-     INDArray[] dataset;
-     Dataset(){
-          System.out.println("Initializing Dataset...");
-          try {
-               root = getDatasetRoot();
-               rootDataset = new File(root.toString() + "/lfw-deepfunneled");
-               dataset = initDataset(rootDataset);
+     private final static String allNames = "/people.csv";
+     private final static String[] testPaths = {"0011","0012","0013","0014","0015"};
+     static int width = 50;
+     static int height = 50;
+     static int offsetX = 0;
+     static int offsetY = 0;
+     static double noise = 0.2;
 
-          }
-          catch(Exception e){
-               System.out.println(e);
-               System.exit(0);
-          }
+     /* Will set a dataset for cnn by default. If boolean provided, will ravel
+     and reshape both the training and testing data.
+      */
+     Dataset() throws Exception{
+          System.out.println("Initializing Dataset...");
+          System.out.println();
+          System.out.println("Testing set size: " + testingSet.size());
+          System.out.println("Training set size: " + trainingSet.size());
+          setData(false);
           System.out.println("Dataset Initialized");
      }
 
-     private static INDArray[] initDataset(File rootDataset){
-          long numberOfClasses = rootDataset.length();
-          System.out.println(numberOfClasses);
-          for(File file : rootDataset.listFiles()){
-          }
-          return null;
+     Dataset(boolean ae) throws Exception{
+          System.out.println("Initializing Dataset...");
+          System.out.println();
+          System.out.println("Testing set size: " + testingSet.size());
+          System.out.println("Training set size: " + trainingSet.size());
+
+          System.out.println("Dataset Initialized");
      }
+     public static void setData(boolean ae) throws Exception{
+          String[] trainingPaths = {"0001", "0002", "0003", "0004", "0005", "0006", "0007", "0008", "0009", "0010"};
+          String root = getDatasetRoot();
+          String name;
+          String image;
+          String finalPath;
+          File rootFile = new File(root);
+          INDArray v_in;
+          Img2INDArray.rgb();
 
-     public static ArrayList<String> getCSV(String fileToRead){
-          ArrayList<String> container = new ArrayList<String>();
-          try {
-               File root = getDatasetRoot();
-               String mismatch = root.toString() + fileToRead;
-               String line;
-               BufferedReader mismatchFile = new BufferedReader(new FileReader(mismatch));
-               boolean firstline = true;
+          for(File class_ : rootFile.listFiles()) {
+               String[] nameAndPath = class_.toString().split("/");
+               name = nameAndPath[nameAndPath.length - 1];
+               image = class_.toString() + "/" + name + "_";
 
-               while((line = mismatchFile.readLine()) != null){
-                    if(firstline) { firstline = false; continue; }
-                    container.add(line);
+               for (String postFix : trainingPaths) {
+                    finalPath = image + postFix + ".jpg";
+                    v_in = Img2INDArray.load_image(finalPath, width, height, offsetX, offsetY, noise, false);
+                    if(ae){v_in = v_in.ravel().reshape(1,v_in.length());}
+                    trainingSet.add(v_in);
                }
-               System.out.println(fileToRead);
-               for(String l : container){
-                    System.out.println(l);
+
+               for(String postFix : testPaths){
+                    finalPath = image + postFix + ".jpg";
+                    v_in = Img2INDArray.load_image(finalPath, width, height, offsetX, offsetY, noise, false);
+                    if(ae){v_in = v_in.ravel().reshape(1,v_in.length());}
+                    testingSet.add(v_in);
                }
-               return null;
-          }catch (Exception e){
-               e.printStackTrace();
-               System.exit(0);
           }
-          return container;
      }
-
-     private static File getDatasetRoot() throws Exception{
+     private static String getDatasetRoot() throws Exception{
           String currentDir = new java.io.File( "." ).getCanonicalPath();
-          File datasetRoot = new File( currentDir + "/lfw-dataset" );
+          String datasetRoot = currentDir + "/dataset/";
           return datasetRoot;
      }
+
+
 }
