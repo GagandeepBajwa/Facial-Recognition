@@ -21,23 +21,22 @@ import org.nd4j.linalg.factory.Nd4j;
  */
 public class TestClass  {
 
-    public static void main(String[] args) throws Exception
-    {
-        /** Load image as a 3-channel RGB INDArray of shape { height x width x 3 } */
+    public static void main(String[] args) throws Exception {
         ae();
     }
 
     public static void ae() throws Exception{
         AutoEncoder ae = new AutoEncoder(.001);
         Dataset ds = new Dataset(true);
+        for(String name : ds.names){
+            System.out.println(name);
+        }
 
-        ae.train(10, ds.trainingSet);
+        ae.train(100, ds.trainingSet);
         //ae.test(ts.testingSet);
     }
 
     public static void cnn() throws Exception{
         Dataset cnnDataset = new Dataset(false);
     }
-
-
 }

@@ -1,5 +1,6 @@
 package com.fall2019.comp4980;
 
+import org.bytedeco.javacv.FrameFilter;
 import org.deeplearning4j.earlystopping.scorecalc.AutoencoderScoreCalculator;
 import org.deeplearning4j.nn.conf.ComputationGraphConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
@@ -12,7 +13,9 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.learning.config.Adam;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.Map;
 
 public class AutoEncoder {
 
@@ -122,7 +125,7 @@ public class AutoEncoder {
           return net;
      }
 
-     public static void train(int epoch, ArrayList<INDArray> training_set)
+     public static void train(int epoch, ArrayList<INDArray> training_set) throws Exception
      {
           INDArray[] INPs = new INDArray[1];
           System.out.println("Beginning training...");
@@ -132,9 +135,18 @@ public class AutoEncoder {
                {
                     INPs[0] = t;
                     model.fit(INPs, INPs);
-                    System.out.println( model.score() + "\t" + epoch + " to go!");
                }
-
+               System.out.println( model.score() + "\t" + epoch + " to go!");
           }
+          model.save(new File("ae.zip"));
+     }
+
+     public static void test(ArrayList<INDArray> testing_set) throws Exception {
+          model = ComputationGraph.load(new File("ae.zip"), false);
+          INDArray[] INPs = new INDArray[1];
+          System.out.println("Beginning testing...");
+
+          Map<String,INDArray> activations = model.feedForward(INPs,false);
+
      }
 }

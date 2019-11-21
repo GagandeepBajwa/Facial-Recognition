@@ -84,11 +84,10 @@ public class Img2INDArray {
     
     public static INDArray load_image(String filename,int width, int height, int offsetX, int offsetY, double level, boolean preview) throws Exception
     {
-          
+
            BufferedImage img = ImageIO.read( new File( filename ) );
                     
            return preProcess( width, height, img, offsetX, offsetY, level, preview );
-           
     }
     
     public static INDArray preProcess( int width, int height, BufferedImage img, int offsetX, int offsetY, double level, boolean preview )

@@ -12,10 +12,12 @@ import java.util.ArrayList;
 
 public class Dataset {
      public static ArrayList<INDArray> trainingSet = new ArrayList<INDArray>();
-     public static ArrayList<INDArray> testingSet = new ArrayList<INDArray>();;
+     public static ArrayList<INDArray> testingSet = new ArrayList<INDArray>();
+     public static ArrayList<String> names = new ArrayList<String>();
      private static File root;
      private static File rootDataset;
      private final static String allNames = "/people.csv";
+     private final static String[] trainingPaths = {"0001", "0002", "0003", "0004", "0005", "0006", "0007", "0008", "0009", "0010"};
      private final static String[] testPaths = {"0011","0012","0013","0014","0015"};
      static int width = 50;
      static int height = 50;
@@ -40,11 +42,11 @@ public class Dataset {
           System.out.println();
           System.out.println("Testing set size: " + testingSet.size());
           System.out.println("Training set size: " + trainingSet.size());
-
+          setData(ae);
           System.out.println("Dataset Initialized");
      }
      public static void setData(boolean ae) throws Exception{
-          String[] trainingPaths = {"0001", "0002", "0003", "0004", "0005", "0006", "0007", "0008", "0009", "0010"};
+
           String root = getDatasetRoot();
           String name;
           String image;
@@ -54,8 +56,10 @@ public class Dataset {
           Img2INDArray.rgb();
 
           for(File class_ : rootFile.listFiles()) {
+
                String[] nameAndPath = class_.toString().split("/");
                name = nameAndPath[nameAndPath.length - 1];
+               names.add(name);
                image = class_.toString() + "/" + name + "_";
 
                for (String postFix : trainingPaths) {
@@ -64,7 +68,7 @@ public class Dataset {
                     if(ae){v_in = v_in.ravel().reshape(1,v_in.length());}
                     trainingSet.add(v_in);
                }
-
+               noise = 0.0;
                for(String postFix : testPaths){
                     finalPath = image + postFix + ".jpg";
                     v_in = Img2INDArray.load_image(finalPath, width, height, offsetX, offsetY, noise, false);
@@ -78,6 +82,4 @@ public class Dataset {
           String datasetRoot = currentDir + "/dataset/";
           return datasetRoot;
      }
-
-
 }
