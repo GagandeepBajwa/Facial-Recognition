@@ -9,11 +9,18 @@ import java.io.FileReader;
 import java.lang.reflect.Array;
 import java.nio.Buffer;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Dataset {
      public static ArrayList<INDArray> trainingSet = new ArrayList<INDArray>();
      public static ArrayList<INDArray> testingSet = new ArrayList<INDArray>();
-     public static ArrayList<String> names = new ArrayList<String>();
+     public static Map<String, ArrayList<INDArray>> trainMap = new HashMap<String, ArrayList<INDArray>>();
+     public static Map<String, ArrayList<INDArray>> testMap = new HashMap<String, ArrayList<INDArray>>();
+     public static ArrayList<String> trainPath = new ArrayList<String>();
+     public static ArrayList<String> testPath = new ArrayList<String>();
+
+
      private static File root;
      private static File rootDataset;
      private final static String allNames = "/people.csv";
@@ -57,26 +64,35 @@ public class Dataset {
           INDArray v_in;
           Img2INDArray.rgb();
 
-          for(File class_ : rootFile.listFiles()) {
 
+          for(File class_ : rootFile.listFiles()) {
+               ArrayList<INDArray> listTest = new ArrayList<INDArray>();
+               ArrayList<INDArray> listTrain = new ArrayList<INDArray>();
                String[] nameAndPath = class_.toString().split("/");
                name = nameAndPath[nameAndPath.length - 1];
-               names.add(name);
+
                image = class_.toString() + "/" + name + "_";
 
                for (String postFix : trainingPaths) {
                     finalPath = image + postFix + ".jpg";
+                    trainPath.add(finalPath);
                     v_in = Img2INDArray.load_image(finalPath, width, height, offsetX, offsetY, noise, false);
                     if(ae){v_in = v_in.ravel().reshape(1,v_in.length());}
+                    listTrain.add(v_in);
                     trainingSet.add(v_in);
                }
+               trainMap.put(name, listTrain);
+
                noise = 0.0;
                for(String postFix : testPaths){
                     finalPath = image + postFix + ".jpg";
+                    testPath.add(finalPath);
                     v_in = Img2INDArray.load_image(finalPath, width, height, offsetX, offsetY, noise, false);
                     if(ae){v_in = v_in.ravel().reshape(1,v_in.length());}
+                    listTest.add(v_in);
                     testingSet.add(v_in);
                }
+               testMap.put(name, listTest);
           }
      }
 

@@ -12,7 +12,9 @@ import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.learning.config.Adam;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
+import org.nd4j.linalg.ops.transforms.Transforms;
 
+import javax.xml.crypto.Data;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Map;
@@ -23,13 +25,13 @@ public class AutoEncoder {
      static final int VECTOR_INPUT = 7500;
      static final int INPUT_NODES = 7500;
      static final int ENCODER_1_NODES = 1000;
-     static final int ENCODER_2_NODES = 100;
-     static final int ENCODER_3_NODES = 10;
-     static final int ENCODER_4_NODES = 5;
-     static final int EMBEDDED_NODES = 2;
-     static final int DECODER_4_NODES = 5;
-     static final int DECODER_3_NODES = 10;
-     static final int DECODER_2_NODES = 100;
+     static final int ENCODER_2_NODES = 250;
+     static final int ENCODER_3_NODES = 100;
+     static final int ENCODER_4_NODES = 50;
+     static final int EMBEDDED_NODES = 10;
+     static final int DECODER_4_NODES = 50;
+     static final int DECODER_3_NODES = 100;
+     static final int DECODER_2_NODES = 250;
      static final int DECODER_1_NODES = 1000;
      static final int OUTPUT_NODES = 7500;
 
@@ -141,12 +143,50 @@ public class AutoEncoder {
           model.save(new File("ae.zip"));
      }
 
-     public static void test(ArrayList<INDArray> testing_set) throws Exception {
+     public static void test(Dataset ds) throws Exception {
+          Map<String, ArrayList<INDArray>> trainMap = ds.trainMap;
+          Map<String, ArrayList<INDArray>> testMap = ds.testMap;
+          Double dist = new Double(0.0);
           model = ComputationGraph.load(new File("ae.zip"), false);
-          INDArray[] INPs = new INDArray[1];
+
+
           System.out.println("Beginning testing...");
 
-          Map<String,INDArray> activations = model.feedForward(INPs,false);
 
+          for(String person : testMap.keySet()){
+               ArrayList<INDArray> personTestExamples = testMap.get(person);
+               ArrayList<INDArray> personTrainExamples = trainMap.get(person);
+               System.out.println("");
+               System.out.println("");
+               System.out.println("PERSON: " + person);
+
+               for(INDArray personExample : personTestExamples){
+                    // This initial chunk tests the person against themselves
+                    dist = getEucDistance(personExample);
+                    System.out.print(dist + ", ");
+               }
+
+               // This chunk tests the person against the other people
+               for(String person2 : testMap.keySet()){
+                    if(person.compareTo(person2) != 0){
+                         System.out.println("");
+                         System.out.println("NOT PERSON: " + person2);
+                         ArrayList<INDArray> others = testMap.get(person2);
+                         for(INDArray other : others){
+                              dist = getEucDistance(other);
+                              System.out.print(dist + ", ");
+                         }
+                    }
+               }
+          }
      }
+     private static Double getEucDistance(INDArray personExample){
+          INDArray[] INPs = new INDArray[1];
+          INDArray[] TEST = new INDArray[1];
+          INPs[0] = personExample;
+          Map<String,INDArray> activations = model.feedForward(INPs,false);
+          TEST[0] = activations.get("OUTPUT_01");
+          return Transforms.euclideanDistance( INPs[0], TEST[0] );
+     }
+
 }

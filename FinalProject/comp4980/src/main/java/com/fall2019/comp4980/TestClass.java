@@ -28,9 +28,12 @@ public class TestClass  {
     public static void ae() throws Exception{
         AutoEncoder ae = new AutoEncoder(.001);
         Dataset ds = new Dataset(true);
+        boolean training = true;
+        if(training){
+             ae.train(1000, ds.trainingSet);
+        }
 
-        ae.train(100, ds.trainingSet);
-        //ae.test(ts.testingSet);
+        ae.test(ds);
     }
 
     public static void cnn() throws Exception{
