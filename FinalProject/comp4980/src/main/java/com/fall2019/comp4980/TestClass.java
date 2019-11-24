@@ -22,7 +22,7 @@ import org.nd4j.linalg.factory.Nd4j;
 public class TestClass  {
 
     public static void main(String[] args) throws Exception {
-        ae();
+        cnn();
     }
 
     public static void ae() throws Exception{
@@ -37,6 +37,12 @@ public class TestClass  {
     }
 
     public static void cnn() throws Exception{
+        CNN cnn = new CNN(.001);
         Dataset cnnDataset = new Dataset(false);
+        boolean training = true;
+        if(training){
+            cnn.train(100, cnnDataset.trainingSet);
+        }
+
     }
 }

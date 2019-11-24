@@ -68,13 +68,15 @@ public class Dataset {
           for(File class_ : rootFile.listFiles()) {
                ArrayList<INDArray> listTest = new ArrayList<INDArray>();
                ArrayList<INDArray> listTrain = new ArrayList<INDArray>();
-               String[] nameAndPath = class_.toString().split("/");
+               String[] nameAndPath = class_.toString().split("\\\\", -2);//split will depend on the operating system in windows paths are \ but on mac and linux they are /
                name = nameAndPath[nameAndPath.length - 1];
 
                image = class_.toString() + "/" + name + "_";
 
                for (String postFix : trainingPaths) {
                     finalPath = image + postFix + ".jpg";
+                    System.out.println(name);
+                    System.out.println(postFix);
                     trainPath.add(finalPath);
                     v_in = Img2INDArray.load_image(finalPath, width, height, offsetX, offsetY, noise, false);
                     if(ae){v_in = v_in.ravel().reshape(1,v_in.length());}
