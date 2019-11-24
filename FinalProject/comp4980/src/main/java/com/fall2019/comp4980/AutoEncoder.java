@@ -324,7 +324,7 @@ public class AutoEncoder {
           INDArray[] TEST = new INDArray[1];
           INPs[0] = personExample;
           Map<String,INDArray> activations = model.feedForward(INPs,false);
-          TEST[0] = activations.get("OUTPUT_01");
+          TEST[0] = activations.get("EMBEDDED_01");
           return Transforms.euclideanDistance( INPs[0], TEST[0] );
      }
 }
