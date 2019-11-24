@@ -26,15 +26,26 @@ public class TestClass  {
     }
 
     public static void ae() throws Exception{
-        AutoEncoder ae = new AutoEncoder(.001);
-        Dataset ds = new Dataset(true);
-        boolean training = true;
-        while(training){
-             ae.train(200, ds.trainingSet);
-             training = false;
-        }
 
-        ae.test(ds);
+        Dataset ds = new Dataset(true);
+        boolean trainNewModel = true;
+        boolean testing = true;
+        AutoEncoder ae;
+
+        if(trainNewModel){
+            ae = new AutoEncoder(.0003, true);
+            ae.train(100, ds.trainingSet);
+        }
+        else{
+            ae = new AutoEncoder(.0003, false);
+        }
+        if(testing){
+            ae.test(ds);
+        }
+        else{
+            ae.train(200, ds.trainingSet);
+            ae.test(ds);
+        }
     }
 
     public static void cnn() throws Exception{
