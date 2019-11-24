@@ -2,13 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="c436f7b3-b865-4224-bbe6-b00956a6cc09" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/fall2019/comp4980/CNN.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/fall2019/comp4980/Dataset.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/fall2019/comp4980/Dataset.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/fall2019/comp4980/TestClass.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/fall2019/comp4980/TestClass.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/fall2019/comp4980/AutoEncoder.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/fall2019/comp4980/AutoEncoder.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/fall2019/comp4980/Dataset.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/fall2019/comp4980/Dataset.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/fall2019/comp4980/CNN.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/fall2019/comp4980/CNN.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/com/fall2019/comp4980/TestClass.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/fall2019/comp4980/TestClass.class" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -80,7 +76,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1574112678233</updated>
-      <workItem from="1574574007779" duration="7552000" />
+      <workItem from="1574574007779" duration="8021000" />
     </task>
     <servers />
   </component>
