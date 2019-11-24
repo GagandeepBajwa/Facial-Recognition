@@ -146,69 +146,132 @@ public class AutoEncoder {
           INDArray[] INPs = new INDArray[1];
 
           Double score = 0.0;
-          int count = 1;
+
           System.out.println("Beginning training...");
           for( ; epoch>0; epoch--)
           {
+               int count = 1;
+
+               Collections.shuffle(training_set);
                for( INDArray t: training_set)
                {
                     INPs[0] = t;
                     model.fit(INPs, INPs);
                     score += model.score();
+                    System.out.println( count + "/" + training_set.size() + "\t" + score );
                     count++;
                }
+
                score = score/count;
-               System.out.println( score + "\t" + epoch + " to go!");
+               System.out.println("EPOCH AVG : " +  score + "\t" + epoch + " to go!");
           }
-          model.save(new File("ae.zip"));
+          aePath = "ae_" + score  + ".zip";
+          model.save(new File(aePath));
      }
 
      public static void test(Dataset ds) throws Exception {
-          Map<String, ArrayList<INDArray>> trainMap = ds.trainMap;
           Map<String, ArrayList<INDArray>> testMap = ds.testMap;
-          Double dist = 0.0;
-
-          model = ComputationGraph.load(new File("ae.zip"), false);
-
+          INDArray[] INPs = new INDArray[1];
+          INDArray unknownEmbeddedVector;
+          ArrayList<String> correctAuthList = new ArrayList<>();
+          int correctAuthentication = 0;
+          Double denominator = 0.0;
+          buildBioTemplates(ds);
 
           System.out.println("Beginning testing...");
 
+          for(String person : testMap.keySet()) {
+               System.out.println("Unknown person " + person);
 
-          for(String person : testMap.keySet()){
-               ArrayList<INDArray> personTestExamples = testMap.get(person);
-               ArrayList<Double> allDistanceForTrue = new ArrayList<Double>();
-               ArrayList<Double> allDistanceForFalse = new ArrayList<Double>();
+               ArrayList<INDArray> personImgs = ds.testMap.get(person);
+               INPs[0] = personImgs.get(0);
 
-               System.out.println("");
-               System.out.println("");
-               System.out.println("PERSON: " + person);
 
-               for(INDArray personExample : personTestExamples){
-                    // This initial chunk tests the person against themselves
-                    dist = getEucDistance(personExample);
-                    authenticate(person, true, dist);
-                    allDistanceForTrue.add(dist);
-                    //System.out.print(dist + ", ");
-               }
+               Map<String,INDArray> activations = model.feedForward( INPs, false );
+               unknownEmbeddedVector = activations.get("EMBEDDED_01");
 
-               // This chunk tests the person against the other people
-               for(String person2 : testMap.keySet()){
-                    if(person.compareTo(person2) != 0){
-                         ArrayList<INDArray> others = testMap.get(person2);
+               //System.out.println( unknownEmbeddedVector);
+               //System.exit(0);
 
-                         for(INDArray other : others){
-                              dist = getEucDistance(other);
-                              authenticate(person, false, dist);
-                              allDistanceForFalse.add(dist);
-                         }
+               double numerator = 1000;
+               String whoAmI = "";
+
+               for(String personInBio : bioMap.keySet()) {
+                System.out.println("Comparing against biometric " + personInBio);
+                    double ret_dist = findClosestToPersonFromINDArray(personInBio, unknownEmbeddedVector);
+                    if ( ret_dist < numerator )
+                    {
+                         numerator = ret_dist;
+                         whoAmI = personInBio;
                     }
+                    denominator += ret_dist;
                }
-
-               Double avgDistanceForTrue = getAverageDistance(allDistanceForTrue);
-               Double avgDistanceForFalse = getAverageDistance(allDistanceForFalse);
-               calculateFARandFRR();
+               if(whoAmI.compareTo(person) == 0){
+                    correctAuthList.add(person);
+                    correctAuthentication++;
+               }
+               double prob = 1.0 - numerator/denominator;
+               System.out.println("");
+               System.out.println("");
+               System.out.println("This is: " + person);
+               System.out.println("I think its " + whoAmI + " prob=" + prob );
+               System.out.println("");
+               System.out.println("----------------------");
+               System.out.println("");
           }
 
+          System.out.println("PERFORMANCE:\n" + (double)correctAuthentication/11);
+          System.out.println(correctAuthList);
+
+     }
+
+     private static Double findClosestToPersonFromINDArray(String person, INDArray unknownEV){
+          ArrayList<INDArray> arrList = bioMap.get(person);
+          Double min = 1000.0;
+          Double currentDistance;
+
+
+          // For each of the bioTemplates for this person
+          for(INDArray arr : arrList){
+
+               currentDistance = Transforms.euclideanDistance(arr, unknownEV);
+
+               System.out.println("\t" + currentDistance + ":" + arr);
+
+               if(currentDistance < min){
+                    min = currentDistance;
+               }
+          }
+          System.out.println(min);
+          return min;
+     }
+
+     private static Double calculateUncertainty(INDArray embeddedVector){
+          Map<String, Double> minDistanceMap = new HashMap<>();
+          Double distance = 0.0;
+          for(String person : bioMap.keySet()){
+               Double min = 1000.0;
+               for(INDArray embedVector : bioMap.get(person)){
+                    distance = Transforms.euclideanDistance(embedVector, embeddedVector);
+                    System.out.println(distance);
+               }
+          }
+          return distance;
+     }
+     private static void buildBioTemplates(Dataset ds){
+          INDArray[] INPs = new INDArray[1];
+          INDArray afterActivation;
+          for(String person : ds.trainMap.keySet()){
+               ArrayList<INDArray> listOfTemps = new ArrayList<>();
+               for(INDArray arr : ds.trainMap.get(person)){
+                    INPs[0] = arr;
+                    Map<String, INDArray> activations = model.feedForward(INPs, false);
+                    afterActivation = activations.get("EMBEDDED_01");
+                    listOfTemps.add(afterActivation);
+               }
+
+               bioMap.put(person,listOfTemps);
+          }
      }
      private static void calculateFARandFRR(){
           int sizeOfAccepts = accept.size();
@@ -224,6 +287,7 @@ public class AutoEncoder {
           System.out.println("FAR: " + totalFalseAccepts/sizeOfAccepts);
           System.out.println("FRR: " + totalFalseRejects/sizeOfRejects);
      }
+
      private static void authenticate(String name, boolean isTrue, Double val){
           // Is person a and is accepted True accept
           if(isTrue){
