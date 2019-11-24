@@ -14,34 +14,44 @@ import org.nd4j.linalg.learning.config.Adam;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 import org.nd4j.linalg.ops.transforms.Transforms;
 
+import javax.sound.midi.SysexMessage;
 import javax.xml.crypto.Data;
 import java.io.File;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 public class AutoEncoder {
 
      static ComputationGraph model;
-     static final int VECTOR_INPUT = 7500;
-     static final int INPUT_NODES = 7500;
-     static final int ENCODER_1_NODES = 1000;
-     static final int ENCODER_2_NODES = 250;
-     static final int ENCODER_3_NODES = 100;
-     static final int ENCODER_4_NODES = 50;
-     static final int EMBEDDED_NODES = 10;
-     static final int DECODER_4_NODES = 50;
-     static final int DECODER_3_NODES = 100;
-     static final int DECODER_2_NODES = 250;
-     static final int DECODER_1_NODES = 1000;
-     static final int OUTPUT_NODES = 7500;
+     static final int VECTOR_INPUT = 2500;
+     static final int INPUT_NODES = 2500;
+     static final int ENCODER_1_NODES = 1250;
+     static final int ENCODER_2_NODES = 700;
+     static final int ENCODER_3_NODES = 350;
+     static final int ENCODER_4_NODES = 175;
+     static final int EMBEDDED_NODES = 100;
+     static final int DECODER_4_NODES = 175;
+     static final int DECODER_3_NODES = 350;
+     static final int DECODER_2_NODES = 700;
+     static final int DECODER_1_NODES = 1250;
+     static final int OUTPUT_NODES = 2500;
      private static ArrayList<Integer> accept = new ArrayList<Integer>();
      private static ArrayList<Integer> reject = new ArrayList<Integer>();
-     public static Map<String, Double> frr = new HashMap<>();
+     public static Map<String, ArrayList<INDArray>> bioMap = new HashMap<>();
      private static Double threshold = 20.0;
+     private static String aePath = "";
 
-     AutoEncoder(double learningRate){
-          model = nn_init(learningRate);
+     AutoEncoder(double learningRate, boolean newModel)throws Exception{
+          if(newModel){
+               model = nn_init(learningRate);
+          }
+          else{
+               model = ComputationGraph.load(new File("ae_0.05465756348748387.zip"), true);
+          }
+
      }
      private static ComputationGraph nn_init(double learningRate){
 
