@@ -62,7 +62,7 @@ public class Dataset {
           String finalPath;
           File rootFile = new File(root);
           INDArray v_in;
-          Img2INDArray.rgb();
+          Img2INDArray.grayscale();
 
 
           for(File class_ : rootFile.listFiles()) {
