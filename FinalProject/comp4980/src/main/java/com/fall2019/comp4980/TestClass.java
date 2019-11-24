@@ -28,22 +28,22 @@ public class TestClass  {
     public static void ae() throws Exception{
 
         Dataset ds = new Dataset(true);
-        boolean trainNewModel = true;
-        boolean testing = true;
+        boolean trainNewModel = false;
+        boolean testing = false;
         AutoEncoder ae;
 
         if(trainNewModel){
-            ae = new AutoEncoder(.0003, true);
-            ae.train(100, ds.trainingSet);
+            ae = new AutoEncoder(.00001, true);
+            ae.train(10, ds.trainingSet);
         }
         else{
-            ae = new AutoEncoder(.0003, false);
+            ae = new AutoEncoder(.000033, false);
         }
         if(testing){
             ae.test(ds);
         }
         else{
-            ae.train(200, ds.trainingSet);
+            ae.train(1000, ds.trainingSet);
             ae.test(ds);
         }
     }

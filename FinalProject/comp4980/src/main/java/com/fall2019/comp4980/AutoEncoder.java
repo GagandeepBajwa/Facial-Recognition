@@ -49,7 +49,8 @@ public class AutoEncoder {
                model = nn_init(learningRate);
           }
           else{
-               model = ComputationGraph.load(new File("ae_0.05465756348748387.zip"), true);
+               model = ComputationGraph.load(new File("ae_810.zip"), true);
+               model.setLearningRate(learningRate);
           }
 
      }
@@ -145,25 +146,30 @@ public class AutoEncoder {
      public static void train(int epoch, ArrayList<INDArray> training_set) throws Exception {
           INDArray[] INPs = new INDArray[1];
 
-          Double score = 0.0;
 
+          Double score = 0.0;
           System.out.println("Beginning training...");
           for( ; epoch>0; epoch--)
           {
                int count = 1;
-
+               score = 0.0;
                Collections.shuffle(training_set);
                for( INDArray t: training_set)
                {
                     INPs[0] = t;
                     model.fit(INPs, INPs);
                     score += model.score();
-                    System.out.println( count + "/" + training_set.size() + "\t" + score );
+                    if(count%10==0){System.out.println( count + "/" + training_set.size() + "\t" + score/count );}
+
                     count++;
                }
 
-               score = score/count;
+               score = score/training_set.size();
                System.out.println("EPOCH AVG : " +  score + "\t" + epoch + " to go!");
+               if(epoch % 10 == 0){
+                    aePath = "ae_" + epoch  + ".zip";
+                    model.save(new File(aePath));
+               }
           }
           aePath = "ae_" + score  + ".zip";
           model.save(new File(aePath));
@@ -176,6 +182,8 @@ public class AutoEncoder {
           ArrayList<String> correctAuthList = new ArrayList<>();
           int correctAuthentication = 0;
           Double denominator = 0.0;
+          int counter = 0;
+
           buildBioTemplates(ds);
 
           System.out.println("Beginning testing...");
@@ -185,8 +193,38 @@ public class AutoEncoder {
 
                ArrayList<INDArray> personImgs = ds.testMap.get(person);
                INPs[0] = personImgs.get(0);
+               for (INDArray testImg : personImgs) {
+                    counter++;
+                    INPs[0] = testImg;
+                    Map<String, INDArray> activations = model.feedForward(INPs, false);
+                    unknownEmbeddedVector = activations.get("EMBEDDED_01");
+                    double numerator = 1000;
+                    String whoAmI = "";
 
-
+                    for (String personInBio : bioMap.keySet()) {
+                         System.out.println("Comparing against biometric " + personInBio);
+                         double ret_dist = findClosestToPersonFromINDArray(personInBio, unknownEmbeddedVector);
+                         if (ret_dist < numerator) {
+                              numerator = ret_dist;
+                              whoAmI = personInBio;
+                         }
+                         denominator += ret_dist;
+                    }
+                    if (whoAmI.compareTo(person) == 0) {
+                         correctAuthList.add(person);
+                         correctAuthentication++;
+                    }
+                    double prob = 1.0 - numerator / denominator;
+                    System.out.println("");
+                    System.out.println("");
+                    System.out.println("This is: " + person);
+                    System.out.println("I think its " + whoAmI + " prob=" + prob);
+                    System.out.println("");
+                    System.out.println("----------------------");
+                    System.out.println("");
+               }
+          }
+/*
                Map<String,INDArray> activations = model.feedForward( INPs, false );
                unknownEmbeddedVector = activations.get("EMBEDDED_01");
 
@@ -219,8 +257,8 @@ public class AutoEncoder {
                System.out.println("----------------------");
                System.out.println("");
           }
-
-          System.out.println("PERFORMANCE:\n" + (double)correctAuthentication/11);
+*/
+          System.out.println("PERFORMANCE:\n" + (double)correctAuthentication/counter);
           System.out.println(correctAuthList);
 
      }
@@ -236,7 +274,7 @@ public class AutoEncoder {
 
                currentDistance = Transforms.euclideanDistance(arr, unknownEV);
 
-               System.out.println("\t" + currentDistance + ":" + arr);
+//               System.out.println("\t" + currentDistance + ":" + arr);
 
                if(currentDistance < min){
                     min = currentDistance;
@@ -258,6 +296,7 @@ public class AutoEncoder {
           }
           return distance;
      }
+
      private static void buildBioTemplates(Dataset ds){
           INDArray[] INPs = new INDArray[1];
           INDArray afterActivation;
@@ -273,6 +312,7 @@ public class AutoEncoder {
                bioMap.put(person,listOfTemps);
           }
      }
+
      private static void calculateFARandFRR(){
           int sizeOfAccepts = accept.size();
           int sizeOfRejects = reject.size();
@@ -319,6 +359,7 @@ public class AutoEncoder {
           }
           return total/arr.size();
      }
+
      private static Double getEucDistance(INDArray personExample){
           INDArray[] INPs = new INDArray[1];
           INDArray[] TEST = new INDArray[1];
