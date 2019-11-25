@@ -49,7 +49,7 @@ public class AutoEncoder {
                model = nn_init(learningRate);
           }
           else{
-               model = ComputationGraph.load(new File("ae_90_1.zip"), true);
+               model = ComputationGraph.load(new File("ae_80_38percent.zip"), true);
                model.setLearningRate(learningRate);
           }
 
@@ -166,12 +166,12 @@ public class AutoEncoder {
 
                score = score/training_set.size();
                System.out.println("EPOCH AVG : " +  score + "\t" + epoch + " to go!");
-               if(epoch % 10 == 0){
-                    aePath = "ae_" + epoch  + ".zip";
+               if(epoch % 2 == 0){
+                    aePath = "ae_" + epoch  + (int)(double)score*1000 +  ".zip";
                     model.save(new File(aePath));
                }
           }
-          aePath = "ae_" + score  + ".zip";
+          aePath = "ae_" + (int)(double)score*1000  + ".zip";
           model.save(new File(aePath));
      }
 
@@ -192,7 +192,7 @@ public class AutoEncoder {
                System.out.println("Unknown person " + person);
 
                ArrayList<INDArray> personImgs = ds.testMap.get(person);
-               INPs[0] = personImgs.get(0);
+               //INPs[0] = personImgs.get(0);
                for (INDArray testImg : personImgs) {
                     counter++;
                     INPs[0] = testImg;
@@ -224,46 +224,13 @@ public class AutoEncoder {
                     System.out.println("");
                }
           }
-/*
-               Map<String,INDArray> activations = model.feedForward( INPs, false );
-               unknownEmbeddedVector = activations.get("EMBEDDED_01");
-
-               //System.out.println( unknownEmbeddedVector);
-               //System.exit(0);
-
-               double numerator = 1000;
-               String whoAmI = "";
-
-               for(String personInBio : bioMap.keySet()) {
-                System.out.println("Comparing against biometric " + personInBio);
-                    double ret_dist = findClosestToPersonFromINDArray(personInBio, unknownEmbeddedVector);
-                    if ( ret_dist < numerator )
-                    {
-                         numerator = ret_dist;
-                         whoAmI = personInBio;
-                    }
-                    denominator += ret_dist;
-               }
-               if(whoAmI.compareTo(person) == 0){
-                    correctAuthList.add(person);
-                    correctAuthentication++;
-               }
-               double prob = 1.0 - numerator/denominator;
-               System.out.println("");
-               System.out.println("");
-               System.out.println("This is: " + person);
-               System.out.println("I think its " + whoAmI + " prob=" + prob );
-               System.out.println("");
-               System.out.println("----------------------");
-               System.out.println("");
-          }
-*/
           System.out.println("PERFORMANCE:\n" + (double)correctAuthentication/counter);
           System.out.println(correctAuthList);
 
      }
 
      private static Double findClosestToPersonFromINDArray(String person, INDArray unknownEV){
+          // Finds the closest
           ArrayList<INDArray> arrList = bioMap.get(person);
           Double min = 1000.0;
           Double currentDistance;
