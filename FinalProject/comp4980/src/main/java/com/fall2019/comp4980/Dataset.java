@@ -24,7 +24,7 @@ public class Dataset {
      private static File root;
      private static File rootDataset;
      private final static String allNames = "/people.csv";
-     private final static String[] trainingPaths = {"0001", "0002", "0003", "0004", "0005", "0006", "0007", "0008", "0009", "0010"};
+     private final static String[] trainingPaths = {"0001", "0002", "0003"};//, "0004", "0005", "0006", "0007", "0008", "0009", "0010"};
      private final static String[] testPaths = {"0011","0012","0013","0014","0015"};
      static int width = 50;
      static int height = 50;
@@ -83,50 +83,52 @@ public class Dataset {
                     if(ae){v_in = v_in.ravel().reshape(1,v_in.length());}
                     listTrain.add(v_in);
                     trainingSet.add(v_in);
+                    if(ae){
+                         for(int i = 1; i < 4; i++) {
 
-                    for(int i = 1; i < 4; i++) {
+                              v_in = Img2INDArray.load_image(finalPath, width, height, i, i, 0, false);
+                              if(ae){v_in = v_in.ravel().reshape(1,v_in.length());}
+                              listTrain.add(v_in);
+                              trainingSet.add(v_in);
 
-                         v_in = Img2INDArray.load_image(finalPath, width, height, i, i, 0, false);
-                         if(ae){v_in = v_in.ravel().reshape(1,v_in.length());}
-                         listTrain.add(v_in);
-                         trainingSet.add(v_in);
+                              v_in = Img2INDArray.load_image(finalPath, width, height, -i, -i, 0, false);
+                              if(ae){v_in = v_in.ravel().reshape(1,v_in.length());}
+                              listTrain.add(v_in);
+                              trainingSet.add(v_in);
 
-                         v_in = Img2INDArray.load_image(finalPath, width, height, -i, -i, 0, false);
-                         if(ae){v_in = v_in.ravel().reshape(1,v_in.length());}
-                         listTrain.add(v_in);
-                         trainingSet.add(v_in);
+                              v_in = Img2INDArray.load_image(finalPath, width, height, i, -i, 0, false);
+                              if(ae){v_in = v_in.ravel().reshape(1,v_in.length());}
+                              listTrain.add(v_in);
+                              trainingSet.add(v_in);
 
-                         v_in = Img2INDArray.load_image(finalPath, width, height, i, -i, 0, false);
-                         if(ae){v_in = v_in.ravel().reshape(1,v_in.length());}
-                         listTrain.add(v_in);
-                         trainingSet.add(v_in);
+                              v_in = Img2INDArray.load_image(finalPath, width, height, -i, i, 0, false);
+                              if(ae){v_in = v_in.ravel().reshape(1,v_in.length());}
+                              listTrain.add(v_in);
+                              trainingSet.add(v_in);
 
-                         v_in = Img2INDArray.load_image(finalPath, width, height, -i, i, 0, false);
-                         if(ae){v_in = v_in.ravel().reshape(1,v_in.length());}
-                         listTrain.add(v_in);
-                         trainingSet.add(v_in);
+                              v_in = Img2INDArray.load_image(finalPath, width, height, -i, offsetY, 0, false);
+                              if(ae){v_in = v_in.ravel().reshape(1,v_in.length());}
+                              listTrain.add(v_in);
+                              trainingSet.add(v_in);
 
-                         v_in = Img2INDArray.load_image(finalPath, width, height, -i, offsetY, 0, false);
-                         if(ae){v_in = v_in.ravel().reshape(1,v_in.length());}
-                         listTrain.add(v_in);
-                         trainingSet.add(v_in);
-
-                         v_in = Img2INDArray.load_image(finalPath, width, height, i, offsetY, 0, false);
-                         if(ae){v_in = v_in.ravel().reshape(1,v_in.length());}
-                         listTrain.add(v_in);
-                         trainingSet.add(v_in);
+                              v_in = Img2INDArray.load_image(finalPath, width, height, i, offsetY, 0, false);
+                              if(ae){v_in = v_in.ravel().reshape(1,v_in.length());}
+                              listTrain.add(v_in);
+                              trainingSet.add(v_in);
 
 
-                         v_in = Img2INDArray.load_image(finalPath, width, height, offsetX, i, 0, false);
-                         if(ae){v_in = v_in.ravel().reshape(1,v_in.length());}
-                         listTrain.add(v_in);
-                         trainingSet.add(v_in);
+                              v_in = Img2INDArray.load_image(finalPath, width, height, offsetX, i, 0, false);
+                              if(ae){v_in = v_in.ravel().reshape(1,v_in.length());}
+                              listTrain.add(v_in);
+                              trainingSet.add(v_in);
 
-                         v_in = Img2INDArray.load_image(finalPath, width, height, offsetX, -i, 0, false);
-                         if(ae){v_in = v_in.ravel().reshape(1,v_in.length());}
-                         listTrain.add(v_in);
-                         trainingSet.add(v_in);
+                              v_in = Img2INDArray.load_image(finalPath, width, height, offsetX, -i, 0, false);
+                              if(ae){v_in = v_in.ravel().reshape(1,v_in.length());}
+                              listTrain.add(v_in);
+                              trainingSet.add(v_in);
+                         }
                     }
+
 
                }
                trainMap.put(name, listTrain);
