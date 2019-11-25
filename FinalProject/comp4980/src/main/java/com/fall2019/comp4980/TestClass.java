@@ -33,8 +33,8 @@ public class TestClass  {
         AutoEncoder ae;
 
         if(trainNewModel){
-            ae = new AutoEncoder(.00001, true);
-            ae.train(10, ds.trainingSet);
+            ae = new AutoEncoder(.000033, true);
+            ae.train(100, ds.trainingSet);
         }
         else{
             ae = new AutoEncoder(.000033, false);

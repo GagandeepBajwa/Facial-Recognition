@@ -49,7 +49,7 @@ public class AutoEncoder {
                model = nn_init(learningRate);
           }
           else{
-               model = ComputationGraph.load(new File("ae_810.zip"), true);
+               model = ComputationGraph.load(new File("ae_90_1.zip"), true);
                model.setLearningRate(learningRate);
           }
 
@@ -159,7 +159,7 @@ public class AutoEncoder {
                     INPs[0] = t;
                     model.fit(INPs, INPs);
                     score += model.score();
-                    if(count%10==0){System.out.println( count + "/" + training_set.size() + "\t" + score/count );}
+                    if(count%275==0){System.out.println( count + "/" + training_set.size() + "\t" + score/count );}
 
                     count++;
                }
