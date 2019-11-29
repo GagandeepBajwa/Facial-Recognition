@@ -26,8 +26,8 @@ public class Dataset {
      private final static String allNames = "/people.csv";
      private final static String[] trainingPaths = {"0001", "0002", "0003", "0004", "0005", "0006", "0007", "0008", "0009", "0010"};
      private final static String[] testPaths = {"0011","0012","0013","0014","0015"};
-     static int width = 50;
-     static int height = 50;
+     static int width = 75;
+     static int height = 75;
      static int offsetX = 0;
      static int offsetY = 0;
      static double noise = 0.0;

@@ -20,16 +20,16 @@ public class TestClass  {
 
         Dataset ds = new Dataset(true);
         boolean trainNewModel = false;
-        boolean testing = false;
+        boolean testing = true;
 
         AutoEncoder ae;
 
         if(trainNewModel){
-            ae = new AutoEncoder(.000333, true);
+            ae = new AutoEncoder(.001, true);
             ae.train(200, ds.trainingSet);
         }
         else{
-            ae = new AutoEncoder(.0001, false);
+            ae = new AutoEncoder(.000333, false);
         }
         if(testing){
             ae.test(ds);

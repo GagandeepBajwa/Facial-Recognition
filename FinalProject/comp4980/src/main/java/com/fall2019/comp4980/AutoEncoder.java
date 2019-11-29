@@ -1,5 +1,6 @@
 package com.fall2019.comp4980;
 
+import com.sun.jna.platform.win32.OaIdl;
 import org.bytedeco.javacv.FrameFilter;
 import org.deeplearning4j.earlystopping.scorecalc.AutoencoderScoreCalculator;
 import org.deeplearning4j.nn.conf.ComputationGraphConfiguration;
@@ -25,8 +26,10 @@ import java.util.Map;
 
 public class AutoEncoder {
 
+     private static final int threshold = 990; // 1000 = 100%
+
      static ComputationGraph model;
-     static final int VECTOR_INPUT = 2500;
+     static final int VECTOR_INPUT = 5625;
      static final int INPUT_NODES = 2500;
      static final int ENCODER_1_NODES = 1250;
      static final int ENCODER_2_NODES = 600;
@@ -35,21 +38,22 @@ public class AutoEncoder {
      static final int EMBEDDED_NODES = 300;
      static final int DECODER_4_NODES = 175;
      static final int DECODER_3_NODES = 350;
-     static final int DECODER_2_NODES = 600;
-     static final int DECODER_1_NODES = 1250;
-     static final int OUTPUT_NODES = 2500;
+     static final int DECODER_2_NODES = 1250;
+     static final int DECODER_1_NODES = 2500;
+     static final int OUTPUT_NODES = 5625;
      private static ArrayList<Integer> accept = new ArrayList<Integer>();
      private static ArrayList<Integer> reject = new ArrayList<Integer>();
      public static Map<String, ArrayList<INDArray>> bioMap = new HashMap<>();
-     private static Double threshold = 20.0;
+     private static Map<Integer , int[][]> thresholdConfMatrixMap = new HashMap<>();
      private static String aePath = "";
+     private static int[][] cm = new int[2][2];
 
      AutoEncoder(double learningRate, boolean newModel)throws Exception{
           if(newModel){
                model = nn_init(learningRate);
           }
           else{
-               model = ComputationGraph.load(new File("ae_60_1033.zip"), true);
+               model = ComputationGraph.load(new File("ae_193_9460.zip"), true);
                model.setLearningRate(learningRate);
           }
 
@@ -175,7 +179,7 @@ public class AutoEncoder {
 
                score = score/training_set.size();
                System.out.println("EPOCH AVG : " +  score + "\t" + epoch + " to go!");
-               if(epoch % 10   == 0){
+               if(epoch % 1   == 0){
                     aePath = "ae_" + epoch  + "_" + (int)(score*100000) +  ".zip";
                     model.save(new File(aePath));
                }
@@ -196,8 +200,6 @@ public class AutoEncoder {
           System.out.println("Beginning testing...");
 
           for(String person : testMap.keySet()) {
-               System.out.println("Unknown person " + person);
-
                for (INDArray testImg : ds.testMap.get(person)) {
                     double trueNumerator = 1000;
                     double numerator = 1000;
@@ -224,24 +226,56 @@ public class AutoEncoder {
 
                          denominator += ret_dist;
                     }
-                    if (closestOverall.compareTo(person) == 0) {
-                         correctAuthList.add(person);
-                         correctAuthentication++;
-                    }
+
+//                    if (closestOverall.compareTo(person) == 0) {
+////                         correctAuthList.add(person);
+////                         correctAuthentication++;
+////                    }
+
                     double prob = 1.0 - numerator / denominator;
                     double trueProb = 1.0 - trueNumerator / denominator;
-                    System.out.println("");
-                    System.out.println("This is: " + person);
-                    System.out.println("Most confident: " + closestOverall + " prob=" + prob);
-                    System.out.println("Same person most confident: " + closestTrue + " prob=" + trueProb);
-                    System.out.println("");
-                    System.out.println("----------------------");
-                    System.out.println("");
+
+                    int convertProb = (int)(prob * 1000); // convert for comparison to threshold
+                   boolean passes = (threshold < convertProb) ? true : false;
+                   if(closestOverall.compareTo(closestTrue) == 0){
+                        if(passes){
+                             System.out.println("True accept, " + closestOverall);
+                             cm[0][0]++; // True Accept
+                        } else {
+                             System.out.println("False reject, " + closestOverall);
+                             cm[1][0]++; // False Reject
+                        }
+                   } else {
+                        if(passes){
+                             System.out.println("False accept, " + closestOverall);
+                             cm[1][0]++; // False Accept
+                        } else {
+                             System.out.println("True reject, " + closestOverall);
+                             cm[1][1]++; // True Reject
+                        }
+                   }
+
+                    //double trueProb = 1.0 - trueNumerator / denominator;
+//                    System.out.println("");
+//                    System.out.println("This is: " + person);
+//                    System.out.println("Most confident: " + closestOverall + " prob=" + prob);
+//                    System.out.println("Same person most confident: " + closestTrue + " prob=" + trueProb);
+//                    System.out.println("");
+//                    System.out.println("----------------------");
+//                    System.out.println("");
                     counter++;
+
+
                }
           }
+          System.out.println("THRESHOLD: " + threshold);
+          System.out.println("True Accept " + (double)cm[0][0]/(double)counter);
+          System.out.println("False Reject " + (double)cm[1][0]/ (double)counter);
+          System.out.println("False Accept " + (double)cm[0][1]/ (double)counter);
+          System.out.println("True Reject " + (double)cm[1][1]/ (double)counter);
+
           System.out.println("PERFORMANCE:\n" + (double)correctAuthentication/counter);
-          System.out.println(correctAuthList);
+          //System.out.println(correctAuthList);
 
      }
 
@@ -249,7 +283,6 @@ public class AutoEncoder {
           // Finds the closest
           Double min = 1000.0;
           Double currentDistance;
-
 
           // For each of the bioTemplates for this person
           for(INDArray arr : bioMap.get(person)){
@@ -261,19 +294,6 @@ public class AutoEncoder {
           }
           //System.out.println(min);
           return min;
-     }
-
-     private static Double calculateUncertainty(INDArray embeddedVector){
-          Map<String, Double> minDistanceMap = new HashMap<>();
-          Double distance = 0.0;
-          for(String person : bioMap.keySet()){
-               Double min = 1000.0;
-               for(INDArray embedVector : bioMap.get(person)){
-                    distance = Transforms.euclideanDistance(embedVector, embeddedVector);
-                    System.out.println(distance);
-               }
-          }
-          return distance;
      }
 
      private static void buildBioTemplates(Dataset ds){
@@ -290,61 +310,5 @@ public class AutoEncoder {
 
                bioMap.put(person,listOfTemps);
           }
-     }
-
-     private static void calculateFARandFRR(){
-          int sizeOfAccepts = accept.size();
-          int sizeOfRejects = reject.size();
-          Double totalFalseAccepts = 0.0;
-          Double totalFalseRejects = 0.0;
-          for(int val : accept){
-               totalFalseAccepts+=val;
-          }
-          for(int val : reject){
-               totalFalseRejects+=val;
-          }
-          System.out.println("FAR: " + totalFalseAccepts/sizeOfAccepts);
-          System.out.println("FRR: " + totalFalseRejects/sizeOfRejects);
-     }
-
-     private static void authenticate(String name, boolean isTrue, Double val){
-          // Is person a and is accepted True accept
-          if(isTrue){
-               if(val < threshold){
-                    accept.add(0);
-               }
-               else{
-                    // Rejected when it is the person, False Rejection
-                    accept.add(1);
-               }
-          }
-          // Is a forger
-          else{
-               if(val < threshold){
-                    // is accepted anyway, False Acceptance
-                    reject.add(1);
-               }
-               else{
-                    reject.add(0);
-               }
-          }
-     }
-
-     private static Double getAverageDistance(ArrayList<Double> arr){
-          Double total = 0.0;
-
-          for(Double val : arr){
-               total += val;
-          }
-          return total/arr.size();
-     }
-
-     private static Double getEucDistance(INDArray personExample){
-          INDArray[] INPs = new INDArray[1];
-          INDArray[] TEST = new INDArray[1];
-          INPs[0] = personExample;
-          Map<String,INDArray> activations = model.feedForward(INPs,false);
-          TEST[0] = activations.get("EMBEDDED_01");
-          return Transforms.euclideanDistance( INPs[0], TEST[0] );
      }
 }
