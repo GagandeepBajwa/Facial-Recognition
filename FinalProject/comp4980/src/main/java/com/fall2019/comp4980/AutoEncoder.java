@@ -29,13 +29,13 @@ public class AutoEncoder {
      static final int VECTOR_INPUT = 2500;
      static final int INPUT_NODES = 2500;
      static final int ENCODER_1_NODES = 1250;
-     static final int ENCODER_2_NODES = 700;
+     static final int ENCODER_2_NODES = 600;
      static final int ENCODER_3_NODES = 350;
      static final int ENCODER_4_NODES = 175;
-     static final int EMBEDDED_NODES = 100;
+     static final int EMBEDDED_NODES = 300;
      static final int DECODER_4_NODES = 175;
      static final int DECODER_3_NODES = 350;
-     static final int DECODER_2_NODES = 700;
+     static final int DECODER_2_NODES = 600;
      static final int DECODER_1_NODES = 1250;
      static final int OUTPUT_NODES = 2500;
      private static ArrayList<Integer> accept = new ArrayList<Integer>();
@@ -49,7 +49,7 @@ public class AutoEncoder {
                model = nn_init(learningRate);
           }
           else{
-               model = ComputationGraph.load(new File("ae_80_38percent.zip"), true);
+               model = ComputationGraph.load(new File("ae_60_1033.zip"), true);
                model.setLearningRate(learningRate);
           }
 
@@ -64,7 +64,7 @@ public class AutoEncoder {
                   .weightInit(WeightInit.XAVIER)
                   .activation(Activation.ELU)
                   .updater(new Adam(learningRate))
-
+                  .l2(.00001)
                   .graphBuilder()
 
                   /* Begin. Start creating the neural network structure (Layers) here */
@@ -88,7 +88,7 @@ public class AutoEncoder {
                           .nIn(ENCODER_1_NODES)
                           .nOut(ENCODER_2_NODES)
                           .build(), "ENCODER_H1")
-
+/*
                   .addLayer("ENCODER_H3", new DenseLayer.Builder()
                           .nIn(ENCODER_2_NODES)
                           .nOut(ENCODER_3_NODES)
@@ -98,28 +98,28 @@ public class AutoEncoder {
                           .nIn(ENCODER_3_NODES)
                           .nOut(ENCODER_4_NODES)
                           .build(), "ENCODER_H3")
-
+/*
                   /**    EMBEDDED LAYER    **/
                   .addLayer("EMBEDDED_01", new DenseLayer.Builder()
-                          .nIn(ENCODER_4_NODES)
+                          .nIn(ENCODER_2_NODES)
                           .nOut(EMBEDDED_NODES)
-                          .build(), "ENCODER_H4")
+                          .build(), "ENCODER_H2")
 
-                  /** This is the DECODER part */
-                  .addLayer("DECODER_H4", new DenseLayer.Builder()
+//                  /** This is the DECODER part */
+//                  .addLayer("DECODER_H4", new DenseLayer.Builder()
+//                          .nIn(EMBEDDED_NODES)
+//                          .nOut(DECODER_4_NODES)
+//                          .build(), "EMBEDDED_01")
+//
+//                  .addLayer("DECODER_H3", new DenseLayer.Builder()
+//                          .nIn(DECODER_4_NODES)
+//                          .nOut(DECODER_3_NODES)
+//                          .build(), "DECODER_H4")
+//
+                .addLayer("DECODER_H2", new DenseLayer.Builder()
                           .nIn(EMBEDDED_NODES)
-                          .nOut(DECODER_4_NODES)
-                          .build(), "EMBEDDED_01")
-
-                  .addLayer("DECODER_H3", new DenseLayer.Builder()
-                          .nIn(DECODER_4_NODES)
-                          .nOut(DECODER_3_NODES)
-                          .build(), "DECODER_H4")
-
-                  .addLayer("DECODER_H2", new DenseLayer.Builder()
-                          .nIn(DECODER_3_NODES)
                           .nOut(DECODER_2_NODES)
-                          .build(), "DECODER_H3")
+                          .build(), "EMBEDDED_01")
 
                   .addLayer("DECODER_H1", new DenseLayer.Builder()
                           .nIn(DECODER_2_NODES)
@@ -148,30 +148,39 @@ public class AutoEncoder {
 
 
           Double score = 0.0;
+          Double batchScore = 0.0;
           System.out.println("Beginning training...");
           for( ; epoch>0; epoch--)
           {
                int count = 1;
+               int batchCount = 1;
                score = 0.0;
+
                Collections.shuffle(training_set);
                for( INDArray t: training_set)
                {
+                    batchCount++;
+
                     INPs[0] = t;
                     model.fit(INPs, INPs);
                     score += model.score();
-                    if(count%275==0){System.out.println( count + "/" + training_set.size() + "\t" + score/count );}
+                    batchScore += model.score();
+                    if(count%30==0){
 
+                         System.out.println( count + "/" + training_set.size() + "\t" + batchScore/30);
+                         batchScore = 0.0;
+                    }
                     count++;
                }
 
                score = score/training_set.size();
                System.out.println("EPOCH AVG : " +  score + "\t" + epoch + " to go!");
-               if(epoch % 2 == 0){
-                    aePath = "ae_" + epoch  + (int)(double)score*1000 +  ".zip";
+               if(epoch % 10   == 0){
+                    aePath = "ae_" + epoch  + "_" + (int)(score*100000) +  ".zip";
                     model.save(new File(aePath));
                }
           }
-          aePath = "ae_" + (int)(double)score*1000  + ".zip";
+          aePath = "ae_eot_" + (int)(score*100000)  + ".zip";
           model.save(new File(aePath));
      }
 
@@ -181,9 +190,7 @@ public class AutoEncoder {
           INDArray unknownEmbeddedVector;
           ArrayList<String> correctAuthList = new ArrayList<>();
           int correctAuthentication = 0;
-          Double denominator = 0.0;
           int counter = 0;
-
           buildBioTemplates(ds);
 
           System.out.println("Beginning testing...");
@@ -191,37 +198,46 @@ public class AutoEncoder {
           for(String person : testMap.keySet()) {
                System.out.println("Unknown person " + person);
 
-               ArrayList<INDArray> personImgs = ds.testMap.get(person);
-               //INPs[0] = personImgs.get(0);
-               for (INDArray testImg : personImgs) {
-                    counter++;
+               for (INDArray testImg : ds.testMap.get(person)) {
+                    double trueNumerator = 1000;
+                    double numerator = 1000;
+                    Double denominator = 0.0;
+
                     INPs[0] = testImg;
                     Map<String, INDArray> activations = model.feedForward(INPs, false);
                     unknownEmbeddedVector = activations.get("EMBEDDED_01");
-                    double numerator = 1000;
-                    String whoAmI = "";
+
+                    String closestTrue = "";
+                    String closestOverall = "";
 
                     for (String personInBio : bioMap.keySet()) {
-                         System.out.println("Comparing against biometric " + personInBio);
+                         //System.out.println("Comparing against biometric " + personInBio);
                          double ret_dist = findClosestToPersonFromINDArray(personInBio, unknownEmbeddedVector);
                          if (ret_dist < numerator) {
+                              closestOverall = personInBio;
                               numerator = ret_dist;
-                              whoAmI = personInBio;
                          }
+                         if(personInBio.compareTo(person) == 0 && ret_dist < trueNumerator){
+                              closestTrue = personInBio;
+                              trueNumerator = ret_dist;
+                         }
+
                          denominator += ret_dist;
                     }
-                    if (whoAmI.compareTo(person) == 0) {
+                    if (closestOverall.compareTo(person) == 0) {
                          correctAuthList.add(person);
                          correctAuthentication++;
                     }
                     double prob = 1.0 - numerator / denominator;
-                    System.out.println("");
+                    double trueProb = 1.0 - trueNumerator / denominator;
                     System.out.println("");
                     System.out.println("This is: " + person);
-                    System.out.println("I think its " + whoAmI + " prob=" + prob);
+                    System.out.println("Most confident: " + closestOverall + " prob=" + prob);
+                    System.out.println("Same person most confident: " + closestTrue + " prob=" + trueProb);
                     System.out.println("");
                     System.out.println("----------------------");
                     System.out.println("");
+                    counter++;
                }
           }
           System.out.println("PERFORMANCE:\n" + (double)correctAuthentication/counter);
@@ -231,23 +247,19 @@ public class AutoEncoder {
 
      private static Double findClosestToPersonFromINDArray(String person, INDArray unknownEV){
           // Finds the closest
-          ArrayList<INDArray> arrList = bioMap.get(person);
           Double min = 1000.0;
           Double currentDistance;
 
 
           // For each of the bioTemplates for this person
-          for(INDArray arr : arrList){
-
+          for(INDArray arr : bioMap.get(person)){
                currentDistance = Transforms.euclideanDistance(arr, unknownEV);
-
-//               System.out.println("\t" + currentDistance + ":" + arr);
 
                if(currentDistance < min){
                     min = currentDistance;
                }
           }
-          System.out.println(min);
+          //System.out.println(min);
           return min;
      }
 

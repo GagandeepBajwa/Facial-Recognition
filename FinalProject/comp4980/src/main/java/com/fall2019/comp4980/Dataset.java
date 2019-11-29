@@ -24,13 +24,13 @@ public class Dataset {
      private static File root;
      private static File rootDataset;
      private final static String allNames = "/people.csv";
-     private final static String[] trainingPaths = {"0001", "0002", "0003"};//, "0004", "0005", "0006", "0007", "0008", "0009", "0010"};
+     private final static String[] trainingPaths = {"0001", "0002", "0003", "0004", "0005", "0006", "0007", "0008", "0009", "0010"};
      private final static String[] testPaths = {"0011","0012","0013","0014","0015"};
      static int width = 50;
      static int height = 50;
      static int offsetX = 0;
      static int offsetY = 0;
-     static double noise = 0.2;
+     static double noise = 0.0;
 
      /* Will set a dataset for cnn by default. If boolean provided, will ravel
      and reshape both the training and testing data.
@@ -84,48 +84,42 @@ public class Dataset {
                     listTrain.add(v_in);
                     trainingSet.add(v_in);
                     if(ae){
-                         for(int i = 1; i < 4; i++) {
-
+                         for(int i = 1; i < 2; i++) {
                               v_in = Img2INDArray.load_image(finalPath, width, height, i, i, 0, false);
                               if(ae){v_in = v_in.ravel().reshape(1,v_in.length());}
                               listTrain.add(v_in);
                               trainingSet.add(v_in);
-
                               v_in = Img2INDArray.load_image(finalPath, width, height, -i, -i, 0, false);
                               if(ae){v_in = v_in.ravel().reshape(1,v_in.length());}
                               listTrain.add(v_in);
                               trainingSet.add(v_in);
-
+                              /*
                               v_in = Img2INDArray.load_image(finalPath, width, height, i, -i, 0, false);
                               if(ae){v_in = v_in.ravel().reshape(1,v_in.length());}
                               listTrain.add(v_in);
                               trainingSet.add(v_in);
-
                               v_in = Img2INDArray.load_image(finalPath, width, height, -i, i, 0, false);
                               if(ae){v_in = v_in.ravel().reshape(1,v_in.length());}
                               listTrain.add(v_in);
                               trainingSet.add(v_in);
-
                               v_in = Img2INDArray.load_image(finalPath, width, height, -i, offsetY, 0, false);
                               if(ae){v_in = v_in.ravel().reshape(1,v_in.length());}
                               listTrain.add(v_in);
                               trainingSet.add(v_in);
-
                               v_in = Img2INDArray.load_image(finalPath, width, height, i, offsetY, 0, false);
                               if(ae){v_in = v_in.ravel().reshape(1,v_in.length());}
                               listTrain.add(v_in);
                               trainingSet.add(v_in);
-
-
                               v_in = Img2INDArray.load_image(finalPath, width, height, offsetX, i, 0, false);
                               if(ae){v_in = v_in.ravel().reshape(1,v_in.length());}
                               listTrain.add(v_in);
                               trainingSet.add(v_in);
-
                               v_in = Img2INDArray.load_image(finalPath, width, height, offsetX, -i, 0, false);
                               if(ae){v_in = v_in.ravel().reshape(1,v_in.length());}
                               listTrain.add(v_in);
                               trainingSet.add(v_in);
+
+                               */
                          }
                     }
 

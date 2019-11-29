@@ -6,15 +6,6 @@
 package com.fall2019.comp4980;
 
 
-import java.awt.Graphics;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.util.Scanner;
-import javax.imageio.ImageIO;
-import org.nd4j.linalg.api.ndarray.INDArray;
-import org.nd4j.linalg.factory.Nd4j;
-
-
 /**
  *
  * @author John
@@ -28,22 +19,23 @@ public class TestClass  {
     public static void ae() throws Exception{
 
         Dataset ds = new Dataset(true);
-        boolean trainNewModel = true;
+        boolean trainNewModel = false;
         boolean testing = false;
+
         AutoEncoder ae;
 
         if(trainNewModel){
             ae = new AutoEncoder(.000333, true);
-            ae.train(100, ds.trainingSet);
+            ae.train(200, ds.trainingSet);
         }
         else{
-            ae = new AutoEncoder(.001, false);
+            ae = new AutoEncoder(.0001, false);
         }
         if(testing){
             ae.test(ds);
         }
         else{
-            ae.train(10, ds.trainingSet);
+            ae.train(100, ds.trainingSet);
             ae.test(ds);
         }
     }
