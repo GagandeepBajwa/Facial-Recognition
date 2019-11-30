@@ -13,7 +13,7 @@ package com.fall2019.comp4980;
 public class TestClass  {
 
     public static void main(String[] args) throws Exception {
-        ae();
+        cnn();
     }
 
     public static void ae() throws Exception{
@@ -41,6 +41,14 @@ public class TestClass  {
     }
 
     public static void cnn() throws Exception{
+        CNN cnn = new CNN(.001);
         Dataset cnnDataset = new Dataset(false);
+        boolean training = true;
+        if(training){
+           // cnn.train2(100, cnnDataset.trainingSet, cnnDataset);
+        }
+
+        cnn.test(cnnDataset);
+
     }
 }
