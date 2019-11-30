@@ -26,8 +26,8 @@ public class Dataset {
      private final static String allNames = "/people.csv";
      private final static String[] trainingPaths = {"0001", "0002", "0003", "0004", "0005", "0006", "0007", "0008", "0009", "0010"};
      private final static String[] testPaths = {"0011","0012","0013","0014","0015"};
-     static int width = 75;
-     static int height = 75;
+     static int width = 50;
+     static int height = 50;
      static int offsetX = 0;
      static int offsetY = 0;
      static double noise = 0.0;
@@ -68,7 +68,17 @@ public class Dataset {
           for(File class_ : rootFile.listFiles()) {
                ArrayList<INDArray> listTest = new ArrayList<INDArray>();
                ArrayList<INDArray> listTrain = new ArrayList<INDArray>();
-               String[] nameAndPath = class_.toString().split("\\\\", -2);//split will depend on the operating system in windows paths are \ but on mac and linux they are /
+
+               String system = System.getProperty("os.name");
+               boolean mac = system.compareTo("Mac OS X") == 0;
+               String[] nameAndPath;
+               if(mac){
+                    nameAndPath = class_.toString().split("/");
+               }
+               else{
+                    nameAndPath = class_.toString().split("\\\\", -2);//split will depend on the operating system in windows paths are \ but on mac and linux they are /
+               }
+
                name = nameAndPath[nameAndPath.length - 1];
 
                image = class_.toString() + "/" + name + "_";

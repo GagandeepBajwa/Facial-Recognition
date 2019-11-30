@@ -24,19 +24,28 @@ public class CNN {
     static ComputationGraph model;
     static final int VECTOR_INPUT = 7500;
     static final int INPUT_NODES = 7500;
-    static final int CONV_2_NODES = 8;
-    static final int INPUT_CHANNELS =3;
-    static final int CONV_2_OUTPUTS = 16;
-    static final int HIDDEN_H2_NODES = 500;
-    static final int HIDDEN_H3_NODES = 400;
-    static final int HIDDEN_H4_NODES = 300;
-    static final int HIDDEN_H5_NODES = 200;
-    static final int OUTPUT_NODES = 10;
+    static final int CONV_2_NODES = 16;
+    static final int INPUT_CHANNELS =1;
+    static final int CONV_2_OUTPUTS = 32;
+    static final int HIDDEN_H2_NODES = 250;
+    static final int HIDDEN_H3_NODES = 125;
+    static final int HIDDEN_H4_NODES = 60;
+    static final int HIDDEN_H5_NODES = 30;
+    static final int OUTPUT_NODES = 11;
     static final int OUTPUTS = 11;
 
 
-    CNN(double learningRate){
-        model = nn_init(learningRate);
+    CNN(double learningRate, boolean newModel)throws Exception {
+
+        if(newModel){
+            model = nn_init(learningRate);
+        }
+        else{
+            model = ComputationGraph.load(new File("cnn/cnn_9700_5.96046494262158E-8.zip"), true);
+            // cnn_9625_9.31903758214503E-6.zip
+            model.setLearningRate(learningRate);
+        }
+
     }
     private static ComputationGraph nn_init(double learningRate)
     {
@@ -54,7 +63,7 @@ public class CNN {
 
                 .addLayer("INPUT_I1", new ConvolutionLayer.Builder()  // First layer of type Convolutional, we name it INPUT_I1
                         .kernelSize(3,3)    // Default receptive field of 2,2
-                        .stride(3,3)        
+                        .stride(3,3)
                         .nIn(INPUT_CHANNELS)             // 3 input channels (red,green,blue) to start
                         .nOut(CONV_2_NODES)            // We want 8 feature maps
                         .build(), "vector_in")
@@ -132,41 +141,6 @@ public class CNN {
         return net;
     }
 
-    public static void train(int epoch, ArrayList<INDArray> training_set) throws Exception
-    {
-        INDArray[] INPs = new INDArray[1];
-        INDArray[] OUTs = new INDArray[1];
-        System.out.println("Beginning training...");
-        int person_identifier = 0;
-        int no_data_person = 10;
-        int counter = 0 ;
-        for( ; epoch>0; epoch--)
-        {
-            person_identifier=0;
-            counter=0;
-            for( INDArray t: training_set)
-            {
-                if(counter%no_data_person==0 && counter!=0) {
-                    person_identifier++;
-                    //break;
-                }
-
-                OUTs[0] = Nd4j.zeros(new int[]{1, 11});
-                OUTs[0].putScalar(person_identifier, 1.0);
-                System.out.println(OUTs[0]);
-
-
-                INPs[0] = t;
-                model.fit(INPs, OUTs);
-                counter++;
-            }
-            System.out.println( model.score() + "\t" + epoch + " to go!");
-        }
-        model.save(new File("cnn.zip"));
-    }
-
-    
-    
     public static void train2(int epoch, ArrayList<INDArray> training_set, Dataset ds) throws Exception{
         
         INDArray[] INPs = new INDArray[1];
@@ -174,37 +148,41 @@ public class CNN {
         System.out.println("Beginning training...");
         int person_identifier = 0;
         int no_data_person = 10;
-        int counter = 0 ;
+
         Map<String, ArrayList<INDArray>> trainMap = ds.trainMap;
         for( ; epoch>0; epoch--)
         {
+            double score = 0.0;
+            int counter = 0;
             person_identifier=0;
             for( String person : trainMap.keySet())
             {
+                double batchscore = 0.0;
                 ArrayList<INDArray> personTrainExamples = trainMap.get(person);
                 for(INDArray personTrain : personTrainExamples){
 
                     OUTs[0] = Nd4j.zeros(new int[]{1, 11});
                     OUTs[0].putScalar(person_identifier, 1.0);
-                    System.out.println(OUTs[0]);
-
+                    //System.out.println(OUTs[0]);
 
                     INPs[0] = personTrain;
                     model.fit(INPs, OUTs);
+                    counter++;
+                    score += model.score();
+                    batchscore += model.score();
                 }
                 person_identifier++;
+                //System.out.println("Person score:" + batchscore/10);
             }
-            System.out.println( model.score() + "\t" + epoch + " to go!");
+            System.out.println( score/counter + "\t" + epoch + " to go!");
+            if(epoch%25==0){model.save(new File("cnn" + "_" + epoch + "_"+ score/counter + ".zip"), true);}
         }
         model.save(new File("cnn.zip"));
     }
     
     
     public static void test(Dataset ds) throws Exception {
-        Map<String, ArrayList<INDArray>> trainMap = ds.trainMap;
-        Map<String, ArrayList<INDArray>> testMap = ds.testMap;
-        model = ComputationGraph.load(new File("cnn.zip"), false);
-
+        //model = ComputationGraph.load(new File("cnn.zip"), false);
 
         System.out.println("Beginning testing...");
 
@@ -213,47 +191,42 @@ public class CNN {
         int positive_acceptances = 0;
 
         int person_identifier =0;
-        for(String person : trainMap.keySet()){
-            ArrayList<INDArray> personTestExamples = testMap.get(person);
-            ArrayList<INDArray> personTrainExamples = trainMap.get(person);
+        for(String person : ds.testMap.keySet()) {
             System.out.println("");
             System.out.println("");
             System.out.println("PERSON: " + person);
 
 
-
             /**Get score for each person when running on testing set of the same person*/
-            for(INDArray personExample : personTrainExamples){
-                INDArray[] res = model.output( personExample );
+            for (INDArray personExample : ds.testMap.get(person)) {
+                INDArray[] res = model.output(personExample);
                 System.out.println(res[0]);
                 int result = Nd4j.getExecutioner().exec(new IAMax(res[0])).getInt();
-                System.out.println("Maximum value and it index is: "+ res[0].max() + "and indexof it is: ");//+ result.indexOf(Collections.max(result.get(0))));
-                if(result == person_identifier){
+                System.out.println("Maximum value and it index is: " + res[0].max() + "and indexof it is: " + result);//+ result.indexOf(Collections.max(result.get(0))));
+                if (result == person_identifier) {
                     positive_acceptances++;
-                }
-                else{
+                } else {
                     false_rejections++;
                 }
             }
-            System.out.println("Positive Acceptances: " + positive_acceptances );
+            System.out.println("Positive Acceptances: " + positive_acceptances);
             System.out.println("False Rejections: " + false_rejections);
 
 
-            for(String person2:testMap.keySet()){
-                if(person.compareTo(person2)!=0){
-                    System.out.println("Comparing with: " + person2);
-                    ArrayList<INDArray> others = testMap.get(person2);
-                    for(INDArray other : others){
-                        INDArray[] res = model.output( other );
-                        System.out.println(res[0]);
-                        List result = new ArrayList(Arrays.asList(res[0]));
-                        if(result.indexOf(Collections.max(result))==person_identifier){
-                            false_acceptaces++;
-                        }
-                    }
+//            for(String person2:ds.testMap.keySet()){
+//                if(person.compareTo(person2)!=0){
+//                    System.out.println("Comparing with: " + person2);
+//                    ArrayList<INDArray> others = ds.testMap.get(person2);
+//                    for(INDArray other : others){
+//                        INDArray[] res = model.output( other );
+//                        System.out.println(res[0]);
+//                        List result = new ArrayList(Arrays.asList(res[0]));
+//                        if(result.indexOf(Collections.max(result))==person_identifier){
+//                            false_acceptaces++;
+//                        }
+//                    }
+//        }
 
-                }
-            }
             System.out.println("False Acceptance: " + false_acceptaces);
 
             person_identifier++;

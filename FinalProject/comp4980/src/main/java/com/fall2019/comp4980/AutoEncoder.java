@@ -48,7 +48,7 @@ public class AutoEncoder {
      private static String aePath = "";
      private static int[][] cm = new int[2][2];
 
-     AutoEncoder(double learningRate, boolean newModel)throws Exception{
+     public AutoEncoder(double learningRate, boolean newModel)throws Exception{
           if(newModel){
                model = nn_init(learningRate);
           }

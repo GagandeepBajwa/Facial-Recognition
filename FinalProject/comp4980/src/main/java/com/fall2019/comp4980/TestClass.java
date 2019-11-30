@@ -41,11 +41,11 @@ public class TestClass  {
     }
 
     public static void cnn() throws Exception{
-        CNN cnn = new CNN(.001);
+        CNN cnn = new CNN(.0001, false);
         Dataset cnnDataset = new Dataset(false);
-        boolean training = true;
+        boolean training = false;
         if(training){
-           // cnn.train2(100, cnnDataset.trainingSet, cnnDataset);
+            cnn.train2(10000, cnnDataset.trainingSet, cnnDataset);
         }
 
         cnn.test(cnnDataset);
