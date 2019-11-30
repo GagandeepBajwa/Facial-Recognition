@@ -41,7 +41,7 @@ public class CNN {
             model = nn_init(learningRate);
         }
         else{
-            model = ComputationGraph.load(new File("cnn/cnn_9700_5.96046494262158E-8.zip"), true);
+            model = ComputationGraph.load(new File("cnn_9700_5.96046494262158E-8.zip"), true);
             // cnn_9625_9.31903758214503E-6.zip
             model.setLearningRate(learningRate);
         }
@@ -185,47 +185,87 @@ public class CNN {
         //model = ComputationGraph.load(new File("cnn.zip"), false);
 
         System.out.println("Beginning testing...");
+        
+        Map<String, Integer> personMap = new HashMap<String, Integer>();
+        personMap.put("Julie_Gerberding",0);
+        personMap.put("Taha_Yassin_Ramadan",1);
+        personMap.put("Andy_Roddick",2);
+        personMap.put("Pierce_Brosnan",3);
+        personMap.put("Dominique_de_Villepin",4);
+        personMap.put("Norah_Jones",5);
+        personMap.put("Nancy_Pelosi",6);
+        personMap.put("Mohammed_Al-Douri",7);
+        personMap.put("Bill_Simon",8);
+        personMap.put("Meryl_Streep",9);
+        personMap.put("Hu_Jintao",10);
+        
+        double threshold = 0.90;
+
+               
 
         int false_rejections = 0;
         int false_acceptaces = 0;
         int positive_acceptances = 0;
-
-        int person_identifier =0;
+        int total_positive_acceptances = 0;
+        int total_false_rejections = 0;     
+        int total_false_acceptances = 0;
+        int total_true_rejections=0;
+        int true_rejections=0;
+        int person_identifier =0;      
         for(String person : ds.testMap.keySet()) {
             System.out.println("");
             System.out.println("");
             System.out.println("PERSON: " + person);
+          
 
 
             /**Get score for each person when running on testing set of the same person*/
             for (INDArray personExample : ds.testMap.get(person)) {
                 INDArray[] res = model.output(personExample);
+                System.out.println(person);
                 System.out.println(res[0]);
-                int result = Nd4j.getExecutioner().exec(new IAMax(res[0])).getInt();
-                System.out.println("Maximum value and it index is: " + res[0].max() + "and indexof it is: " + result);//+ result.indexOf(Collections.max(result.get(0))));
-                if (result == person_identifier) {
+                int models_guess = Nd4j.getExecutioner().exec(new IAMax(res[0])).getInt();
+               
+                double dd = res[0].getDouble(models_guess);
+                System.out.println(personMap.get(person));
+                if (models_guess == personMap.get(person) && dd > threshold) {
                     positive_acceptances++;
-                } else {
+                    total_positive_acceptances++;
+                    System.out.println("Positive Acceptance, "+person);
+                }                       
+                    else{
+                    if(models_guess == personMap.get(person) && dd <= threshold){
                     false_rejections++;
+                    total_false_rejections++;
+                    System.out.println("False rejection, "+  person);
+                    }
+                    if(models_guess != personMap.get(person) && dd <= threshold){
+                        true_rejections++;
+                        total_true_rejections++;
+                    }
+                    }
                 }
-            }
+            
             System.out.println("Positive Acceptances: " + positive_acceptances);
             System.out.println("False Rejections: " + false_rejections);
 
 
-//            for(String person2:ds.testMap.keySet()){
-//                if(person.compareTo(person2)!=0){
-//                    System.out.println("Comparing with: " + person2);
-//                    ArrayList<INDArray> others = ds.testMap.get(person2);
-//                    for(INDArray other : others){
-//                        INDArray[] res = model.output( other );
-//                        System.out.println(res[0]);
-//                        List result = new ArrayList(Arrays.asList(res[0]));
-//                        if(result.indexOf(Collections.max(result))==person_identifier){
-//                            false_acceptaces++;
-//                        }
-//                    }
-//        }
+            for(String person2:ds.testMap.keySet()){
+                if(person.compareTo(person2)!=0){
+                    System.out.println("Comparing with: " + person2);
+                    ArrayList<INDArray> others = ds.testMap.get(person2);
+                    for(INDArray other : others){
+                        INDArray[] res = model.output( other );
+                         int models_guess = Nd4j.getExecutioner().exec(new IAMax(res[0])).getInt();
+               
+                        double dd = res[0].getDouble(models_guess);
+                        if(models_guess == personMap.get(person) && dd > threshold){
+                            false_acceptaces++;
+                            total_false_acceptances++;
+                        }
+                    }
+        }
+            }
 
             System.out.println("False Acceptance: " + false_acceptaces);
 
@@ -235,6 +275,11 @@ public class CNN {
             positive_acceptances = 0;
 
         }
+        
+        System.out.println("True Acceptances: "+(total_positive_acceptances/55.0)*100 + " %");
+        System.out.println("False Rejections: "+ (total_false_rejections/55.0)*100 + " %");
+        System.out.println("False Acceptances: "+ (total_false_acceptances/55.0)*100 + " %");
+         System.out.println("True Rejections : "+ (total_true_rejections/55.0)*100 + " %");
 
         /** This demo takes a lot of memory in forcing some kind of garbage collection seems to help (eliminated out-of-memory errors) */
         java.lang.Runtime.getRuntime().gc();
