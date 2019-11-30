@@ -22,16 +22,17 @@ import java.util.*;
 
 public class CNN {
 
+    static double threshold = 0.89;
     static ComputationGraph model;
     static final int VECTOR_INPUT = 7500;
     static final int INPUT_NODES = 7500;
     static final int CONV_2_NODES = 16;
     static final int INPUT_CHANNELS = 1;
     static final int CONV_2_OUTPUTS = 32;
-    static final int HIDDEN_H2_NODES = 250;
-    static final int HIDDEN_H3_NODES = 125;
-    static final int HIDDEN_H4_NODES = 60;
-    static final int HIDDEN_H5_NODES = 30;
+    static final int HIDDEN_H2_NODES = 500;
+    static final int HIDDEN_H3_NODES = 250;
+    static final int HIDDEN_H4_NODES = 125;
+    static final int HIDDEN_H5_NODES = 60;
     static final int OUTPUT_NODES = 11;
     static final int OUTPUTS = 11;
 
@@ -40,8 +41,8 @@ public class CNN {
         if (newModel) {
             model = nn_init(learningRate);
         } else {
-            model = ComputationGraph.load(new File("cnn/cnn_9625_1.5164661737349599E-4.zip"), true);
             // cnn_9625_9.31903758214503E-6.zip
+            model = ComputationGraph.load(new File("cnn/cnn_9700_noReg_low.zip"), true);
             model.setLearningRate(learningRate);
         }
 
@@ -185,7 +186,7 @@ public class CNN {
         personMap.put("Meryl_Streep", 9);
         personMap.put("Hu_Jintao", 10);
 
-        double threshold = 0.90;
+
 
         int false_rejections = 0;
         int false_acceptaces = 0;
@@ -247,15 +248,12 @@ public class CNN {
                 }
             }
 
-            System.out.println("False Acceptance: " + false_acceptaces);
-
             person_identifier++;
             false_acceptaces = 0;
             false_rejections = 0;
             positive_acceptances = 0;
-
         }
-
+        System.out.println("THRESHOLD: " + threshold);
         System.out.println("True Acceptances: " + (total_positive_acceptances / 55.0) * 100 + " %");
         System.out.println("False Rejections: " + (total_false_rejections / 55.0) * 100 + " %");
         System.out.println("False Acceptances: " + (total_false_acceptances / 55.0) * 100 + " %");
