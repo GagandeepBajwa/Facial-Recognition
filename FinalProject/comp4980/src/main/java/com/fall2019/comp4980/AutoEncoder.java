@@ -26,10 +26,10 @@ import java.util.Map;
 
 public class AutoEncoder {
 
-     private static final int threshold = 990; // 1000 = 100%
+     private static final int threshold = 960; // 1000 = 100%
 
      static ComputationGraph model;
-     static final int VECTOR_INPUT = 5625;
+     static final int VECTOR_INPUT = 2500;
      static final int INPUT_NODES = 2500;
      static final int ENCODER_1_NODES = 1250;
      static final int ENCODER_2_NODES = 600;
@@ -53,7 +53,7 @@ public class AutoEncoder {
                model = nn_init(learningRate);
           }
           else{
-               model = ComputationGraph.load(new File("ae_193_9460.zip"), true);
+               model = ComputationGraph.load(new File("reg-/ae_eot_648.zip"), true);
                model.setLearningRate(learningRate);
           }
 
@@ -247,8 +247,8 @@ public class AutoEncoder {
                         }
                    } else {
                         if(passes){
-                             System.out.println("False accept, " + closestOverall);
-                             cm[1][0]++; // False Accept
+                             System.out.println("False accept, " + closestOverall + " (Actually " + closestTrue + ")");
+                             cm[0][1]++; // False Accept
                         } else {
                              System.out.println("True reject, " + closestOverall);
                              cm[1][1]++; // True Reject
@@ -268,13 +268,13 @@ public class AutoEncoder {
 
                }
           }
-          System.out.println("THRESHOLD: " + threshold);
-          System.out.println("True Accept " + (double)cm[0][0]/(double)counter);
-          System.out.println("False Reject " + (double)cm[1][0]/ (double)counter);
-          System.out.println("False Accept " + (double)cm[0][1]/ (double)counter);
-          System.out.println("True Reject " + (double)cm[1][1]/ (double)counter);
+          System.out.println("");
+          System.out.println("THRESHOLD: " + threshold/10 + "%");
+          System.out.println("True Accept " + (cm[0][0]/(double)counter) * 100+ "%");
+          System.out.println("False Reject " + (cm[1][0]/ (double)counter) * 100+ "%");
+          System.out.println("False Accept " + (cm[0][1]/ (double)counter) * 100+ "%");
+          System.out.println("True Reject " + (cm[1][1]/ (double)counter) * 100+ "%");
 
-          System.out.println("PERFORMANCE:\n" + (double)correctAuthentication/counter);
           //System.out.println(correctAuthList);
 
      }

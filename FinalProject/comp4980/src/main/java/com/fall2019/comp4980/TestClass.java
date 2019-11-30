@@ -14,6 +14,7 @@ public class TestClass  {
 
     public static void main(String[] args) throws Exception {
         cnn();
+        //ae();
     }
 
     public static void ae() throws Exception{
@@ -41,11 +42,11 @@ public class TestClass  {
     }
 
     public static void cnn() throws Exception{
-        CNN cnn = new CNN(.0001, false);
+        CNN cnn = new CNN(.000333, false);
         Dataset cnnDataset = new Dataset(false);
         boolean training = false;
         if(training){
-           // cnn.train2(10000, cnnDataset.trainingSet, cnnDataset);
+            cnn.train2(10000, cnnDataset.trainingSet, cnnDataset);
         }
 
         cnn.test(cnnDataset);
