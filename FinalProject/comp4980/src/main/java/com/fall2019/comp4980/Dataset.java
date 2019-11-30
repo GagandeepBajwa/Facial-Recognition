@@ -88,6 +88,7 @@ public class Dataset {
                noise = 0.0;
                for(String postFix : testPaths){
                     finalPath = image + postFix + ".jpg";
+                    System.out.println(finalPath);
                     testPath.add(finalPath);
                     v_in = Img2INDArray.load_image(finalPath, width, height, offsetX, offsetY, noise, false);
                     if(ae){v_in = v_in.ravel().reshape(1,v_in.length());}

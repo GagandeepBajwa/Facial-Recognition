@@ -1,5 +1,6 @@
 package com.fall2019.comp4980;
 import org.bytedeco.javacv.FrameFilter;
+import org.nd4j.linalg.api.ops.impl.indexaccum.IAMax;
 import org.deeplearning4j.earlystopping.scorecalc.AutoencoderScoreCalculator;
 import org.deeplearning4j.nn.conf.ComputationGraphConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
@@ -164,6 +165,41 @@ public class CNN {
         model.save(new File("cnn.zip"));
     }
 
+    
+    
+    public static void train2(int epoch, ArrayList<INDArray> training_set, Dataset ds) throws Exception{
+        
+        INDArray[] INPs = new INDArray[1];
+        INDArray[] OUTs = new INDArray[1];
+        System.out.println("Beginning training...");
+        int person_identifier = 0;
+        int no_data_person = 10;
+        int counter = 0 ;
+        Map<String, ArrayList<INDArray>> trainMap = ds.trainMap;
+        for( ; epoch>0; epoch--)
+        {
+            person_identifier=0;
+            for( String person : trainMap.keySet())
+            {
+                ArrayList<INDArray> personTrainExamples = trainMap.get(person);
+                for(INDArray personTrain : personTrainExamples){
+
+                    OUTs[0] = Nd4j.zeros(new int[]{1, 11});
+                    OUTs[0].putScalar(person_identifier, 1.0);
+                    System.out.println(OUTs[0]);
+
+
+                    INPs[0] = personTrain;
+                    model.fit(INPs, OUTs);
+                }
+                person_identifier++;
+            }
+            System.out.println( model.score() + "\t" + epoch + " to go!");
+        }
+        model.save(new File("cnn.zip"));
+    }
+    
+    
     public static void test(Dataset ds) throws Exception {
         Map<String, ArrayList<INDArray>> trainMap = ds.trainMap;
         Map<String, ArrayList<INDArray>> testMap = ds.testMap;
@@ -177,7 +213,7 @@ public class CNN {
         int positive_acceptances = 0;
 
         int person_identifier =0;
-        for(String person : testMap.keySet()){
+        for(String person : trainMap.keySet()){
             ArrayList<INDArray> personTestExamples = testMap.get(person);
             ArrayList<INDArray> personTrainExamples = trainMap.get(person);
             System.out.println("");
@@ -187,11 +223,12 @@ public class CNN {
 
 
             /**Get score for each person when running on testing set of the same person*/
-            for(INDArray personExample : personTestExamples){
+            for(INDArray personExample : personTrainExamples){
                 INDArray[] res = model.output( personExample );
                 System.out.println(res[0]);
-                List result = new ArrayList(Arrays.asList(res[0]));
-                if(result.indexOf(Collections.max(result))==person_identifier){
+                int result = Nd4j.getExecutioner().exec(new IAMax(res[0])).getInt();
+                System.out.println("Maximum value and it index is: "+ res[0].max() + "and indexof it is: ");//+ result.indexOf(Collections.max(result.get(0))));
+                if(result == person_identifier){
                     positive_acceptances++;
                 }
                 else{
