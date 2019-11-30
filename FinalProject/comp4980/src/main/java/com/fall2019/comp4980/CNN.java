@@ -199,7 +199,7 @@ public class CNN {
         personMap.put("Meryl_Streep",9);
         personMap.put("Hu_Jintao",10);
         
-        double threshold = 0.90;
+        double threshold = 0.99;
 
                
 
@@ -213,46 +213,34 @@ public class CNN {
         int true_rejections=0;
         int person_identifier =0;      
         for(String person : ds.testMap.keySet()) {
-            System.out.println("");
-            System.out.println("");
-            System.out.println("PERSON: " + person);
-          
-
-
             /**Get score for each person when running on testing set of the same person*/
             for (INDArray personExample : ds.testMap.get(person)) {
                 INDArray[] res = model.output(personExample);
-                System.out.println(person);
-                System.out.println(res[0]);
+                //System.out.println(person);
+               // System.out.println(res[0]);
                 int models_guess = Nd4j.getExecutioner().exec(new IAMax(res[0])).getInt();
-               
                 double dd = res[0].getDouble(models_guess);
-                System.out.println(personMap.get(person));
                 if (models_guess == personMap.get(person) && dd > threshold) {
                     positive_acceptances++;
                     total_positive_acceptances++;
-                    System.out.println("Positive Acceptance, "+person);
+                    System.out.println("True Accept, "+person);
                 }                       
-                    else{
+                else{
                     if(models_guess == personMap.get(person) && dd <= threshold){
                     false_rejections++;
                     total_false_rejections++;
-                    System.out.println("False rejection, "+  person);
+                    System.out.println("False reject, "+  person);
                     }
                     if(models_guess != personMap.get(person) && dd <= threshold){
                         true_rejections++;
                         total_true_rejections++;
-                    }
+                    System.out.println("True Reject, "+ person);    
                     }
                 }
+                }
             
-            System.out.println("Positive Acceptances: " + positive_acceptances);
-            System.out.println("False Rejections: " + false_rejections);
-
-
             for(String person2:ds.testMap.keySet()){
                 if(person.compareTo(person2)!=0){
-                    System.out.println("Comparing with: " + person2);
                     ArrayList<INDArray> others = ds.testMap.get(person2);
                     for(INDArray other : others){
                         INDArray[] res = model.output( other );
@@ -262,12 +250,11 @@ public class CNN {
                         if(models_guess == personMap.get(person) && dd > threshold){
                             false_acceptaces++;
                             total_false_acceptances++;
+                            System.out.println("False Accept, "+person2+" (Actually "+person+")");
                         }
                     }
         }
             }
-
-            System.out.println("False Acceptance: " + false_acceptaces);
 
             person_identifier++;
             false_acceptaces = 0;
@@ -276,10 +263,11 @@ public class CNN {
 
         }
         
+        System.out.println("\nTHRESHOLD: "+ threshold*100 + " %");
         System.out.println("True Acceptances: "+(total_positive_acceptances/55.0)*100 + " %");
         System.out.println("False Rejections: "+ (total_false_rejections/55.0)*100 + " %");
         System.out.println("False Acceptances: "+ (total_false_acceptances/55.0)*100 + " %");
-         System.out.println("True Rejections : "+ (total_true_rejections/55.0)*100 + " %");
+        System.out.println("True Rejections : "+ (total_true_rejections/55.0)*100 + " %");
 
         /** This demo takes a lot of memory in forcing some kind of garbage collection seems to help (eliminated out-of-memory errors) */
         java.lang.Runtime.getRuntime().gc();
