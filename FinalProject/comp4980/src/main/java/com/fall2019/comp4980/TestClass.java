@@ -46,7 +46,7 @@ public class TestClass  {
         Dataset cnnDataset = new Dataset(false);
         boolean training = false;
         if(training){
-            cnn.train2(10000, cnnDataset.trainingSet, cnnDataset);
+           // cnn.train2(10000, cnnDataset.trainingSet, cnnDataset);
         }
 
         cnn.test(cnnDataset);
