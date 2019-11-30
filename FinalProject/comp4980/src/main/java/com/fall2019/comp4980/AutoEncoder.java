@@ -17,6 +17,7 @@ import org.nd4j.linalg.ops.transforms.Transforms;
 import javax.xml.crypto.Data;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 
 public class AutoEncoder {
@@ -34,6 +35,10 @@ public class AutoEncoder {
      static final int DECODER_2_NODES = 250;
      static final int DECODER_1_NODES = 1000;
      static final int OUTPUT_NODES = 7500;
+     private static ArrayList<Integer> accept = new ArrayList<Integer>();
+     private static ArrayList<Integer> reject = new ArrayList<Integer>();
+     public static Map<String, Double> frr = new HashMap<>();
+     private static Double threshold = 20.0;
 
      AutoEncoder(double learningRate){
           model = nn_init(learningRate);
@@ -127,9 +132,11 @@ public class AutoEncoder {
           return net;
      }
 
-     public static void train(int epoch, ArrayList<INDArray> training_set) throws Exception
-     {
+     public static void train(int epoch, ArrayList<INDArray> training_set) throws Exception {
           INDArray[] INPs = new INDArray[1];
+
+          Double score = 0.0;
+          int count = 1;
           System.out.println("Beginning training...");
           for( ; epoch>0; epoch--)
           {
@@ -137,8 +144,11 @@ public class AutoEncoder {
                {
                     INPs[0] = t;
                     model.fit(INPs, INPs);
+                    score += model.score();
+                    count++;
                }
-               System.out.println( model.score() + "\t" + epoch + " to go!");
+               score = score/count;
+               System.out.println( score + "\t" + epoch + " to go!");
           }
           model.save(new File("ae.zip"));
      }
@@ -146,7 +156,8 @@ public class AutoEncoder {
      public static void test(Dataset ds) throws Exception {
           Map<String, ArrayList<INDArray>> trainMap = ds.trainMap;
           Map<String, ArrayList<INDArray>> testMap = ds.testMap;
-          Double dist = new Double(0.0);
+          Double dist = 0.0;
+
           model = ComputationGraph.load(new File("ae.zip"), false);
 
 
@@ -155,7 +166,9 @@ public class AutoEncoder {
 
           for(String person : testMap.keySet()){
                ArrayList<INDArray> personTestExamples = testMap.get(person);
-               ArrayList<INDArray> personTrainExamples = trainMap.get(person);
+               ArrayList<Double> allDistanceForTrue = new ArrayList<Double>();
+               ArrayList<Double> allDistanceForFalse = new ArrayList<Double>();
+
                System.out.println("");
                System.out.println("");
                System.out.println("PERSON: " + person);
@@ -163,22 +176,74 @@ public class AutoEncoder {
                for(INDArray personExample : personTestExamples){
                     // This initial chunk tests the person against themselves
                     dist = getEucDistance(personExample);
-                    System.out.print(dist + ", ");
+                    authenticate(person, true, dist);
+                    allDistanceForTrue.add(dist);
+                    //System.out.print(dist + ", ");
                }
 
                // This chunk tests the person against the other people
                for(String person2 : testMap.keySet()){
                     if(person.compareTo(person2) != 0){
-                         System.out.println("");
-                         System.out.println("NOT PERSON: " + person2);
                          ArrayList<INDArray> others = testMap.get(person2);
+
                          for(INDArray other : others){
                               dist = getEucDistance(other);
-                              System.out.print(dist + ", ");
+                              authenticate(person, false, dist);
+                              allDistanceForFalse.add(dist);
                          }
                     }
                }
+
+               Double avgDistanceForTrue = getAverageDistance(allDistanceForTrue);
+               Double avgDistanceForFalse = getAverageDistance(allDistanceForFalse);
+               calculateFARandFRR();
           }
+
+     }
+     private static void calculateFARandFRR(){
+          int sizeOfAccepts = accept.size();
+          int sizeOfRejects = reject.size();
+          Double totalFalseAccepts = 0.0;
+          Double totalFalseRejects = 0.0;
+          for(int val : accept){
+               totalFalseAccepts+=val;
+          }
+          for(int val : reject){
+               totalFalseRejects+=val;
+          }
+          System.out.println("FAR: " + totalFalseAccepts/sizeOfAccepts);
+          System.out.println("FRR: " + totalFalseRejects/sizeOfRejects);
+     }
+     private static void authenticate(String name, boolean isTrue, Double val){
+          // Is person a and is accepted True accept
+          if(isTrue){
+               if(val < threshold){
+                    accept.add(0);
+               }
+               else{
+                    // Rejected when it is the person, False Rejection
+                    accept.add(1);
+               }
+          }
+          // Is a forger
+          else{
+               if(val < threshold){
+                    // is accepted anyway, False Acceptance
+                    reject.add(1);
+               }
+               else{
+                    reject.add(0);
+               }
+          }
+     }
+
+     private static Double getAverageDistance(ArrayList<Double> arr){
+          Double total = 0.0;
+
+          for(Double val : arr){
+               total += val;
+          }
+          return total/arr.size();
      }
      private static Double getEucDistance(INDArray personExample){
           INDArray[] INPs = new INDArray[1];
@@ -188,5 +253,4 @@ public class AutoEncoder {
           TEST[0] = activations.get("OUTPUT_01");
           return Transforms.euclideanDistance( INPs[0], TEST[0] );
      }
-
 }

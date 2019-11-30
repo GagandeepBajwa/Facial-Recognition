@@ -29,8 +29,9 @@ public class TestClass  {
         AutoEncoder ae = new AutoEncoder(.001);
         Dataset ds = new Dataset(true);
         boolean training = true;
-        if(training){
-             ae.train(1000, ds.trainingSet);
+        while(training){
+             ae.train(200, ds.trainingSet);
+             training = false;
         }
 
         ae.test(ds);
@@ -41,7 +42,7 @@ public class TestClass  {
         Dataset cnnDataset = new Dataset(false);
         boolean training = true;
         if(training){
-          //  cnn.train(100, cnnDataset.trainingSet);
+            cnn.train(100, cnnDataset.trainingSet);
         }
 
         cnn.test(cnnDataset);

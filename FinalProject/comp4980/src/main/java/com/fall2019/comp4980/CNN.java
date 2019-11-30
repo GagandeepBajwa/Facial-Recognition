@@ -30,7 +30,7 @@ public class CNN {
     static final int HIDDEN_H3_NODES = 400;
     static final int HIDDEN_H4_NODES = 300;
     static final int HIDDEN_H5_NODES = 200;
-    static final int OUTPUT_NODES = 100;
+    static final int OUTPUT_NODES = 10;
     static final int OUTPUTS = 11;
 
 
@@ -53,7 +53,7 @@ public class CNN {
 
                 .addLayer("INPUT_I1", new ConvolutionLayer.Builder()  // First layer of type Convolutional, we name it INPUT_I1
                         .kernelSize(3,3)    // Default receptive field of 2,2
-                        .stride(3,3)        // We slide the receptive field left and downward one pixel at a time
+                        .stride(3,3)        
                         .nIn(INPUT_CHANNELS)             // 3 input channels (red,green,blue) to start
                         .nOut(CONV_2_NODES)            // We want 8 feature maps
                         .build(), "vector_in")
@@ -147,10 +147,12 @@ public class CNN {
             {
                 if(counter%no_data_person==0 && counter!=0) {
                     person_identifier++;
+                    //break;
                 }
 
                 OUTs[0] = Nd4j.zeros(new int[]{1, 11});
                 OUTs[0].putScalar(person_identifier, 1.0);
+                System.out.println(OUTs[0]);
 
 
                 INPs[0] = t;
