@@ -41,7 +41,7 @@ public class CNN {
             model = nn_init(learningRate);
         }
         else{
-            model = ComputationGraph.load(new File("cnn/cnn_9700_5.96046494262158E-8.zip"), true);
+            model = ComputationGraph.load(new File("cnn/cnn_9625_1.5164661737349599E-4.zip"), true);
             // cnn_9625_9.31903758214503E-6.zip
             model.setLearningRate(learningRate);
         }
@@ -163,7 +163,7 @@ public class CNN {
 
                     OUTs[0] = Nd4j.zeros(new int[]{1, 11});
                     OUTs[0].putScalar(person_identifier, 1.0);
-                    //System.out.println(OUTs[0]);
+                    //System.out.println(person +"  "+ person_identifier);
 
                     INPs[0] = personTrain;
                     model.fit(INPs, OUTs);
